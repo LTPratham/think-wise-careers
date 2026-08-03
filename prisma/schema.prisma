@@ -1,0 +1,412 @@
+// Think Wise Careers — Prisma Schema
+// 18 models as specified in architecture.md
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Enums ───────────────────────────────────────────────
+
+enum UserRole {
+  EDITOR
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DISABLED
+}
+
+enum PublishStatus {
+  DRAFT
+  PUBLISHED
+  UNPUBLISHED
+}
+
+enum BlogPublishStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum DisplayStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum FAQScope {
+  GLOBAL
+  COUNTRY
+  MBBS_COUNTRY
+  SERVICE
+}
+
+enum BlogCategory {
+  STUDY_ABROAD
+  MBBS_ABROAD
+  VISA
+  CAREER
+  SCHOLARSHIPS
+  COUNTRY_GUIDES
+}
+
+enum PartnerType {
+  SCHOOL
+  UNIVERSITY
+  FINANCIAL_INSTITUTION
+}
+
+enum PartnerStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum PartnerEnquiryStatus {
+  NEW
+  CONTACTED
+  CLOSED
+}
+
+enum LeadStatus {
+  NEW
+  CONTACTED
+  CONSULTATION_BOOKED
+  CONVERTED
+  LOST
+}
+
+enum QualificationFlag {
+  QUALIFIED
+  UNVERIFIED
+}
+
+enum TouchpointChannel {
+  FORM
+  BROCHURE_DOWNLOAD
+  WHATSAPP_CLICK
+  CALL_CLICK
+  NEWSLETTER
+}
+
+enum JobType {
+  EMAIL_SYNC
+  WHATSAPP_NOTIFY
+  CAPTCHA_VERIFY
+  CRM_SYNC
+  INTERNAL_NOTIFICATION
+}
+
+enum JobStatus {
+  PENDING
+  RETRYING
+  FAILED
+  COMPLETED
+}
+
+// ─── Models ──────────────────────────────────────────────
+
+/// Admin panel user accounts (Editor / Admin roles)
+model User {
+  id           String     @id @default(uuid())
+  name         String
+  email        String     @unique
+  passwordHash String
+  role         UserRole   @default(EDITOR)
+  status       UserStatus @default(ACTIVE)
+  lastLoginAt  DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  blogPosts      BlogPost[]
+  auditLogEntries AuditLogEntry[]
+  redirectRules  RedirectRule[]
+
+  @@map("users")
+}
+
+/// Study Abroad country pages (UK, Canada, Australia, etc.)
+model Country {
+  id              String        @id @default(uuid())
+  slug            String        @unique
+  name            String
+  overview        String        @db.Text
+  popularCourses  Json          @default("[]")
+  eligibility     String        @db.Text
+  costBreakdown   Json          @default("{}")
+  scholarships    String        @db.Text
+  visaOverview    String        @db.Text
+  careerOutcomes  String        @db.Text
+  publishStatus   PublishStatus @default(DRAFT)
+  redirectTarget  String?
+  seoMeta         Json          @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  universities CountryUniversity[]
+
+  @@map("countries")
+}
+
+/// Join table: Country ↔ University (many-to-many)
+model CountryUniversity {
+  countryId    String
+  universityId String
+
+  country    Country    @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  university University @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@id([countryId, universityId])
+  @@map("country_universities")
+}
+
+/// MBBS Abroad country pages (Russia, Georgia, Kazakhstan, etc.)
+model MBBSCountry {
+  id                     String        @id @default(uuid())
+  slug                   String        @unique
+  name                   String
+  feeStructure           Json          @default("{}")
+  recognitionStatus      String        @db.Text
+  recognitionDisclaimer  String        @db.Text @default("Recognition subject to NMC/FMGE regulations at time of admission; verify current status before applying.")
+  eligibilityNeet        String        @db.Text
+  admissionProcess       String        @db.Text
+  hostelInfo             String        @db.Text
+  livingCost             Json          @default("{}")
+  careerScope            String        @db.Text
+  publishStatus          PublishStatus @default(DRAFT)
+  redirectTarget         String?
+  seoMeta                Json          @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  universities MBBSCountryUniversity[]
+
+  @@map("mbbs_countries")
+}
+
+/// Join table: MBBSCountry ↔ University (many-to-many)
+model MBBSCountryUniversity {
+  mbbsCountryId String
+  universityId  String
+
+  mbbsCountry MBBSCountry @relation(fields: [mbbsCountryId], references: [id], onDelete: Cascade)
+  university  University  @relation(fields: [universityId], references: [id], onDelete: Cascade)
+
+  @@id([mbbsCountryId, universityId])
+  @@map("mbbs_country_universities")
+}
+
+/// Shared university entity — referenced by both Country and MBBSCountry pages
+model University {
+  id          String @id @default(uuid())
+  name        String
+  countryName String
+  logoUrl     String?
+  description String @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  countries     CountryUniversity[]
+  mbbsCountries MBBSCountryUniversity[]
+
+  @@map("universities")
+}
+
+/// Service pages (Study Abroad Admissions, Visa Assistance, etc.)
+model Service {
+  id          String @id @default(uuid())
+  slug        String @unique
+  name        String
+  description String @db.Text
+  process     String @db.Text
+  ctaLabel    String @default("Book a Free Counselling Session")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("services")
+}
+
+/// FAQ entries — global or scoped to a specific entity
+model FAQ {
+  id           String   @id @default(uuid())
+  question     String   @db.Text
+  answer       String   @db.Text
+  scope        FAQScope @default(GLOBAL)
+  scopeRefId   String?
+  displayOrder Int      @default(0)
+
+  @@map("faqs")
+}
+
+/// Blog posts with SEO metadata
+model BlogPost {
+  id               String            @id @default(uuid())
+  slug             String            @unique
+  title            String
+  body             String            @db.Text
+  category         BlogCategory
+  featuredImageUrl String?
+  authorId         String
+  seoMeta          Json              @default("{}")
+  publishStatus    BlogPublishStatus @default(DRAFT)
+  publishedAt      DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  author User @relation(fields: [authorId], references: [id])
+
+  @@map("blog_posts")
+}
+
+/// Student testimonials (text and/or video)
+model Testimonial {
+  id            String        @id @default(uuid())
+  studentName   String
+  program       String
+  country       String
+  quoteText     String?       @db.Text
+  videoEmbedUrl String?
+  mediaUrl      String?
+  displayStatus DisplayStatus @default(DRAFT)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("testimonials")
+}
+
+/// Approved/published institutional partners
+model Partner {
+  id           String        @id @default(uuid())
+  partnerType  PartnerType
+  name         String
+  logoUrl      String?
+  description  String        @db.Text
+  status       PartnerStatus @default(ACTIVE)
+  displayOrder Int           @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("partners")
+}
+
+/// Inbound partner enquiry form submissions
+model PartnerEnquiry {
+  id               String               @id @default(uuid())
+  partnerType      PartnerType
+  organizationName String
+  contactName      String
+  contactEmail     String
+  contactPhone     String
+  message          String               @db.Text
+  status           PartnerEnquiryStatus @default(NEW)
+
+  createdAt DateTime @default(now())
+
+  @@map("partner_enquiries")
+}
+
+/// Student/parent leads with dedup and qualification tracking
+model Lead {
+  id                String            @id @default(uuid())
+  name              String
+  email             String
+  phone             String
+  sourcePage        String?
+  serviceInterest   String?
+  message           String?           @db.Text
+  status            LeadStatus        @default(NEW)
+  qualificationFlag QualificationFlag @default(UNVERIFIED)
+  duplicateFlag     Boolean           @default(false)
+  utmSource         String?
+  utmMedium         String?
+  utmCampaign       String?
+
+  createdAt       DateTime @default(now())
+  lastActivityAt  DateTime @default(now())
+  retentionReviewAt DateTime?
+
+  touchpoints LeadTouchpoint[]
+
+  @@index([phone])
+  @@index([email])
+  @@map("leads")
+}
+
+/// Lead interaction touchpoints (appended on duplicate submissions)
+model LeadTouchpoint {
+  id         String           @id @default(uuid())
+  leadId     String
+  sourcePage String?
+  channel    TouchpointChannel
+  timestamp  DateTime         @default(now())
+
+  lead Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+
+  @@map("lead_touchpoints")
+}
+
+/// Audit trail for all admin mutations
+model AuditLogEntry {
+  id            String   @id @default(uuid())
+  userId        String
+  action        String
+  entityType    String
+  entityId      String
+  changeSummary Json     @default("{}")
+  timestamp     DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("audit_log_entries")
+}
+
+/// 301 redirect rules (enforced on country/page unpublish)
+model RedirectRule {
+  id         String   @id @default(uuid())
+  oldPath    String   @unique
+  newPath    String?
+  statusCode Int      @default(301)
+  createdBy  String
+  createdAt  DateTime @default(now())
+
+  creator User @relation(fields: [createdBy], references: [id])
+
+  @@map("redirect_rules")
+}
+
+/// Newsletter email subscriptions
+model NewsletterSubscriber {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  consentGiven  Boolean   @default(false)
+  subscribedAt  DateTime  @default(now())
+  unsubscribedAt DateTime?
+
+  @@map("newsletter_subscribers")
+}
+
+/// Async integration job queue (DB-backed, swappable to real broker later)
+model IntegrationJobQueue {
+  id         String    @id @default(uuid())
+  jobType    JobType
+  payload    Json      @default("{}")
+  status     JobStatus @default(PENDING)
+  retryCount Int       @default(0)
+  lastError  String?   @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("integration_job_queue")
+}
