@@ -114,7 +114,7 @@ export default function Home() {
                  
                  <div className="absolute bottom-8 left-8 text-white z-10">
                    <div className="inline-flex items-center space-x-2 bg-indigo-500/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-3 border border-indigo-400/50">
-                     <Globe className="w-3 h-3" /> <span>Global Degrees</span>
+                     <span>Global Degrees</span>
                    </div>
                    <h3 className="text-4xl font-bold font-outfit">Study Abroad</h3>
                    <p className="text-indigo-100 mt-2 font-medium">UK, Canada, Australia, USA & more</p>
@@ -155,7 +155,7 @@ export default function Home() {
                  
                  <div className="absolute bottom-8 left-8 text-white z-10">
                    <div className="inline-flex items-center space-x-2 bg-purple-500/80 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold mb-3 border border-purple-400/50">
-                     <ShieldCheck className="w-3 h-3" /> <span>Direct Admission</span>
+                     <span>Direct Admission</span>
                    </div>
                    <h3 className="text-4xl font-bold font-outfit">MBBS Abroad</h3>
                    <p className="text-purple-100 mt-2 font-medium">Russia, Georgia, Kazakhstan & more</p>
