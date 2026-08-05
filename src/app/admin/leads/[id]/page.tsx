@@ -6,9 +6,9 @@ import { ChevronLeft, Mail, Phone, MapPin, Calendar, Clock, AlertTriangle } from
 import { LeadStatusSelect } from "@/components/admin/LeadStatusSelect";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-export default async function LeadDetailPage({ params }: { params: { id: string } }) {
+export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const lead = await prisma.lead.findUnique({
-    where: { id: params.id },
+    where: { id: (await params).id },
     include: {
       touchpoints: {
         orderBy: { createdAt: "desc" },

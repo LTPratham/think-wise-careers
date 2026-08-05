@@ -9,7 +9,7 @@ export async function writeAuditLog(
   action: string,
   entityType: string,
   entityId: string,
-  changeSummary: Record<string, unknown> = {}
+  changeSummary: any = {}
 ) {
   await prisma.auditLogEntry.create({
     data: {

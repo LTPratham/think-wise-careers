@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
 import { Save } from "lucide-react";
 
 const serviceSchema = z.object({
@@ -24,11 +24,11 @@ type ServiceValues = z.infer<typeof serviceSchema>;
 
 export function ServiceForm({ initialData }: { initialData: any }) {
   const router = useRouter();
-  const { toast } = useToast();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<ServiceValues>({
-    resolver: zodResolver(serviceSchema),
+    resolver: zodResolver(serviceSchema) as any,
     defaultValues: initialData || {
       name: "",
       slug: "",

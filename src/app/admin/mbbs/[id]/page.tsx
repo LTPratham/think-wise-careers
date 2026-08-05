@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { MBBSForm } from "@/components/admin/MBBSForm";
 
-export default async function AdminMBBSEditorPage({ params }: { params: { id: string } }) {
-  const isNew = params.id === "new";
+export default async function AdminMBBSEditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const isNew = (await params).id === "new";
   
   let country = null;
   if (!isNew) {
     country = await prisma.mBBSCountry.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     });
     if (!country) notFound();
   }

@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/rbac";
 import { writeAuditLog } from "@/lib/auditLog";
 
-export async function PATCH(req: Request, { params }: { params: { id: string } }) {
+export async function PATCH(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireEditor();
     if (auth instanceof NextResponse) return auth;

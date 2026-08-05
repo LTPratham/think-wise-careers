@@ -3,13 +3,13 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
 
 export function LeadStatusSelect({ leadId, currentStatus }: { leadId: string, currentStatus: string }) {
   const [status, setStatus] = useState(currentStatus);
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
-  const { toast } = useToast();
+  
 
   const handleStatusChange = async (newStatus: string) => {
     setIsUpdating(true);

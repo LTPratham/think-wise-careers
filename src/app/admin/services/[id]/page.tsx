@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { ServiceForm } from "@/components/admin/ServiceForm";
 
-export default async function AdminServiceEditorPage({ params }: { params: { id: string } }) {
-  const isNew = params.id === "new";
+export default async function AdminServiceEditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const isNew = (await params).id === "new";
   
   let service = null;
   if (!isNew) {
     service = await prisma.service.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
     });
     if (!service) notFound();
   }

@@ -4,13 +4,13 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { CountryForm } from "@/components/admin/CountryForm";
 
-export default async function AdminCountryEditorPage({ params }: { params: { id: string } }) {
-  const isNew = params.id === "new";
+export default async function AdminCountryEditorPage({ params }: { params: Promise<{ id: string }> }) {
+  const isNew = (await params).id === "new";
   
   let country = null;
   if (!isNew) {
     country = await prisma.country.findUnique({
-      where: { id: params.id },
+      where: { id: (await params).id },
       include: { universities: { select: { id: true } } },
     });
     if (!country) notFound();

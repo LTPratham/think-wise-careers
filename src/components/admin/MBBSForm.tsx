@@ -10,7 +10,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
 import { Save } from "lucide-react";
 
 const mbbsSchema = z.object({
@@ -28,11 +28,11 @@ type MBBSValues = z.infer<typeof mbbsSchema>;
 
 export function MBBSForm({ initialData }: { initialData: any }) {
   const router = useRouter();
-  const { toast } = useToast();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<MBBSValues>({
-    resolver: zodResolver(mbbsSchema),
+    resolver: zodResolver(mbbsSchema) as any,
     defaultValues: initialData || {
       name: "",
       slug: "",

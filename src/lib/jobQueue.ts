@@ -11,7 +11,7 @@ import type { JobType } from "@prisma/client";
  */
 export async function enqueueJob(
   jobType: JobType,
-  payload: Record<string, unknown>
+  payload: any
 ) {
   return prisma.integrationJobQueue.create({
     data: {

@@ -17,7 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useToast } from "@/components/ui/toast";
+import { toast } from "@/components/ui/toast";
 import { Save } from "lucide-react";
 
 const countrySchema = z.object({
@@ -32,11 +32,11 @@ type CountryValues = z.infer<typeof countrySchema>;
 
 export function CountryForm({ initialData, universities }: { initialData: any, universities: any[] }) {
   const router = useRouter();
-  const { toast } = useToast();
+  
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CountryValues>({
-    resolver: zodResolver(countrySchema),
+    resolver: zodResolver(countrySchema) as any,
     defaultValues: initialData || {
       name: "",
       slug: "",

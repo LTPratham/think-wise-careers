@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/rbac";
 import { writeAuditLog } from "@/lib/auditLog";
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireEditor();
     if (auth instanceof NextResponse) return auth;
@@ -30,7 +30,7 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireEditor();
     if (auth instanceof NextResponse) return auth;
