@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { BrainCircuit, LineChart, FileText, CheckCircle2, Target, Users } from "lucide-react";
+import { BrainCircuit, LineChart, FileText, CheckCircle2, Target, Users, HeartHandshake } from "lucide-react";
 import Link from "next/link";
 import { QuickEnquiryForm } from "@/components/forms/QuickEnquiryForm";
 
