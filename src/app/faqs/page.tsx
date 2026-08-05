@@ -9,7 +9,7 @@ import { HelpCircle } from "lucide-react";
 
 export default async function GlobalFaqsPage() {
   const faqs = await prisma.fAQ.findMany({
-    where: { serviceId: null, countryId: null, mbbsCountryId: null }, // Fetch only global FAQs
+    where: { scope: "GLOBAL" }, // Fetch only global FAQs
     orderBy: { createdAt: "desc" },
   });
 
