@@ -1,15 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 
 export function Header() {
   return (
     <header className="w-full sticky top-0 z-50 glass-panel border-b-0">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center">
-          <Image src="/tw-logo.png" alt="Think Wise Careers Logo" width={160} height={50} className="object-contain" priority />
+        <Link href="/" className="flex items-center h-14">
+          <img src="/tw-logo.png" alt="Think Wise Careers Logo" className="h-full w-auto object-contain" />
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">
