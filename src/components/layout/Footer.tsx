@@ -1,10 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
+import MorphingParticles from "@/components/3d/MorphingParticles";
 
 export function Footer() {
   return (
-    <footer className="bg-slate-900 text-slate-300 py-16">
-      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12">
+    <footer className="bg-slate-900 text-slate-300 py-16 relative overflow-hidden">
+      <MorphingParticles />
+      <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
         <div className="space-y-4">
           <div className="flex items-center mb-4">
             <div className="bg-white px-4 py-3 rounded-xl inline-block shadow-md">
@@ -55,7 +57,7 @@ export function Footer() {
           </ul>
         </div>
       </div>
-      <div className="container mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-sm text-slate-500 flex flex-col md:flex-row justify-between items-center">
+      <div className="container mx-auto px-4 mt-16 pt-8 border-t border-slate-800 text-sm text-slate-500 flex flex-col md:flex-row justify-between items-center relative z-10">
         <p>&copy; {new Date().getFullYear()} Think Wise Careers. All rights reserved.</p>
         <div className="flex space-x-4 mt-4 md:mt-0">
           <Link href="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link>

@@ -16,7 +16,7 @@ export default function MorphingParticles() {
     camera.position.z = 6;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
+    // Initial size will be set by handleResize below
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mountRef.current.appendChild(renderer.domElement);
 
@@ -67,12 +67,18 @@ export default function MorphingParticles() {
     animate();
 
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      if (!mountRef.current) return;
+      const width = mountRef.current.clientWidth;
+      const height = mountRef.current.clientHeight;
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(width, height);
     };
 
     window.addEventListener('resize', handleResize);
+    
+    // Initial size setup
+    handleResize();
 
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -89,7 +95,7 @@ export default function MorphingParticles() {
   return (
     <div 
       ref={mountRef}
-      className={`fixed inset-0 z-50 pointer-events-none mix-blend-screen transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
+      className={`absolute inset-0 z-0 pointer-events-none mix-blend-screen transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
     />
   );
 }

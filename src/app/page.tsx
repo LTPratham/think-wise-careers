@@ -3,12 +3,10 @@ import { Button } from "@/components/ui/button";
 import { QuickEnquiryForm } from "@/components/forms/QuickEnquiryForm";
 import { ArrowRight } from "lucide-react";
 import { BookAirplane3D } from "@/components/animations/BookAirplane3D";
-import MorphingParticles from "@/components/3d/MorphingParticles";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <MorphingParticles />
       {/* Premium Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-24 lg:pt-40 lg:pb-32 mesh-bg min-h-screen flex items-center">
         {/* 3D Background */}
