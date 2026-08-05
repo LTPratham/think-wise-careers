@@ -9,7 +9,9 @@ export function Header() {
     <header className="w-full sticky top-0 z-50 glass-panel border-b-0">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
         <Link href="/" className="flex items-center group py-2">
-          <Image src="/tw-logo.png" alt="Think Wise Careers Logo" width={220} height={65} className="object-contain hover:scale-105 transition-transform" priority />
+          <div className="relative overflow-hidden rounded-xl border border-white/40 bg-white/40 backdrop-blur-md px-4 py-2 shadow-sm transition-all group-hover:bg-white/60 group-hover:shadow-md">
+            <Image src="/tw-logo.png" alt="Think Wise Careers Logo" width={140} height={42} className="object-contain transition-transform group-hover:scale-[1.02]" priority />
+          </div>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">

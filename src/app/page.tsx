@@ -1,12 +1,14 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { QuickEnquiryForm } from "@/components/forms/QuickEnquiryForm";
-import { ArrowRight, Globe, ShieldCheck, Star, GraduationCap, Award, BookOpen } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { BookAirplane3D } from "@/components/animations/BookAirplane3D";
+import MorphingParticles from "@/components/3d/MorphingParticles";
 
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
+      <MorphingParticles />
       {/* Premium Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-24 lg:pt-40 lg:pb-32 mesh-bg min-h-screen flex items-center">
         {/* 3D Background */}
@@ -21,7 +23,6 @@ export default function Home() {
         <div className="container mx-auto px-4 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 pointer-events-none">
           <div className="lg:col-span-7 space-y-8 relative pointer-events-auto">
             <div className="inline-flex items-center space-x-2 bg-white/50 backdrop-blur-md px-4 py-2 rounded-full border border-indigo-100 shadow-sm">
-              <Star className="w-4 h-4 text-indigo-600 fill-indigo-600" />
               <span className="text-sm font-semibold text-indigo-900">#1 Trusted Education Consultancy</span>
             </div>
             
@@ -45,11 +46,9 @@ export default function Home() {
             
             <div className="pt-8 flex flex-wrap gap-6 text-sm text-slate-600 font-medium">
               <div className="flex items-center space-x-2 bg-white/60 px-3 py-1.5 rounded-full border border-slate-100 shadow-sm">
-                <ShieldCheck className="w-5 h-5 text-indigo-500" />
                 <span>NMC & WHO Recognized</span>
               </div>
               <div className="flex items-center space-x-2 bg-white/60 px-3 py-1.5 rounded-full border border-slate-100 shadow-sm">
-                <Globe className="w-5 h-5 text-purple-500" />
                 <span>15+ Countries</span>
               </div>
             </div>
@@ -77,23 +76,18 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap justify-center items-center gap-8 md:gap-16 text-slate-400 grayscale hover:grayscale-0 transition-all duration-500">
             <div className="flex items-center space-x-2">
-              <Globe className="w-8 h-8 text-blue-500" />
               <span className="text-lg font-bold font-outfit text-slate-700">WHO</span>
             </div>
             <div className="flex items-center space-x-2">
-              <ShieldCheck className="w-8 h-8 text-indigo-500" />
               <span className="text-lg font-bold font-outfit text-slate-700">NMC Approved</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Award className="w-8 h-8 text-yellow-500" />
               <span className="text-lg font-bold font-outfit text-slate-700">ECFMG</span>
             </div>
             <div className="flex items-center space-x-2">
-              <BookOpen className="w-8 h-8 text-purple-500" />
               <span className="text-lg font-bold font-outfit text-slate-700">WFME</span>
             </div>
             <div className="flex items-center space-x-2">
-              <Star className="w-8 h-8 text-pink-500" />
               <span className="text-lg font-bold font-outfit text-slate-700">FAIMER</span>
             </div>
           </div>
@@ -204,8 +198,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/90 to-purple-950/80" />
         
         <div className="container mx-auto px-4 text-center max-w-3xl relative z-10 text-white">
-          <div className="w-24 h-24 bg-white/10 rounded-full flex items-center justify-center mx-auto mb-8 backdrop-blur-md border border-white/20 shadow-2xl">
-            <GraduationCap className="w-12 h-12 text-indigo-200" />
+          <div className="mb-6">
           </div>
           <h2 className="text-4xl lg:text-5xl font-bold font-outfit mb-6">Ready to Start Your Journey?</h2>
           <p className="text-xl opacity-90 mb-10 leading-relaxed text-indigo-100">
