@@ -31,11 +31,11 @@ export default function MorphingParticles() {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.015,
-      color: '#e0e7ff', // Soft, realistic starry white/blue
+      size: 0.025,
+      color: '#6366f1', // Indigo-500, visible on both light and dark backgrounds
       transparent: true,
-      opacity: 0.4,
-      blending: THREE.AdditiveBlending,
+      opacity: 0.6,
+      blending: THREE.NormalBlending,
       depthWrite: false
     });
 
