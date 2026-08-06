@@ -7,8 +7,8 @@ export function Header() {
   return (
     <header className="w-full sticky top-0 z-50 glass-panel border-b-0">
       <div className="container mx-auto px-4 h-20 flex items-center justify-between">
-        <Link href="/" className="flex items-center h-14">
-          <img src="/tw-logo.png" alt="Think Wise Careers Logo" className="h-full w-auto object-contain" />
+        <Link href="/" className="flex items-center">
+          <img src="/tw-logo.png" alt="Think Wise Careers Logo" style={{ maxHeight: '50px', width: 'auto' }} className="object-contain" />
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">

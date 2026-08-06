@@ -31,10 +31,10 @@ export default function MorphingParticles() {
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
 
     const material = new THREE.PointsMaterial({
-      size: 0.035,
-      color: '#a5b4fc', // Bright Indigo to pop on dark backgrounds
+      size: 0.015,
+      color: '#e0e7ff', // Soft, realistic starry white/blue
       transparent: true,
-      opacity: 0.6,
+      opacity: 0.4,
       blending: THREE.AdditiveBlending,
       depthWrite: false
     });
@@ -67,12 +67,9 @@ export default function MorphingParticles() {
     animate();
 
     const handleResize = () => {
-      if (!mountRef.current) return;
-      const width = mountRef.current.clientWidth;
-      const height = mountRef.current.clientHeight;
-      camera.aspect = width / height;
+      camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
-      renderer.setSize(width, height);
+      renderer.setSize(window.innerWidth, window.innerHeight);
     };
 
     window.addEventListener('resize', handleResize);
@@ -95,7 +92,7 @@ export default function MorphingParticles() {
   return (
     <div 
       ref={mountRef}
-      className={`absolute inset-0 z-0 pointer-events-none mix-blend-screen transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
+      className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
     />
   );
 }
