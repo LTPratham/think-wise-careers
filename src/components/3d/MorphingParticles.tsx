@@ -92,7 +92,7 @@ export default function MorphingParticles() {
   return (
     <div 
       ref={mountRef}
-      className={`fixed inset-0 z-0 pointer-events-none transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
+      className={`fixed inset-0 z-40 pointer-events-none transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
     />
   );
 }
