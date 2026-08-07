@@ -5,6 +5,8 @@ import Link from "next/link";
 import { ChevronRight, Calendar, User, ArrowLeft, Share2 } from "lucide-react";
 import { format } from "date-fns";
 import parse from "html-react-parser";
+import { getPostBySlug } from "@/lib/blog";
+import MorphingParticles from "@/components/3d/MorphingParticles";
 import { Button } from "@/components/ui/button";
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }) {
@@ -96,6 +98,8 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
         {/* CTA Footer */}
         <div className="mt-16 bg-indigo-900 text-white rounded-3xl p-10 text-center relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop')] bg-cover bg-center opacity-10" />
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
+          <MorphingParticles className="absolute inset-0 z-0" />
           <div className="relative z-10">
             <h3 className="text-3xl font-bold font-outfit mb-4">Ready to start your journey?</h3>
             <p className="text-indigo-200 mb-8 max-w-xl mx-auto">

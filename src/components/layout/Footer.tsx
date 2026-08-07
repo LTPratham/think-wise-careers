@@ -1,8 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
+import MorphingParticles from "@/components/3d/MorphingParticles";
+
 export function Footer() {
   return (
     <footer className="bg-slate-900 text-slate-300 py-16 relative overflow-hidden">
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30"></div>
+      <MorphingParticles className="absolute inset-0 z-0" />
       <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-4 gap-12 relative z-10">
         <div className="space-y-4">
           <div className="flex items-center mb-4">

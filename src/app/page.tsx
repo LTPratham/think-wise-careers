@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { QuickEnquiryForm } from "@/components/forms/QuickEnquiryForm";
 import { ArrowRight } from "lucide-react";
 import { BookAirplane3D } from "@/components/animations/BookAirplane3D";
+import MorphingParticles from "@/components/3d/MorphingParticles";
 
 export default function Home() {
   return (
@@ -194,6 +195,8 @@ export default function Home() {
         <div className="absolute inset-0 bg-slate-900" />
         <img src="https://images.unsplash.com/photo-1523050854058-8df90110c9f1?q=80&w=2070&auto=format&fit=crop" alt="University Campus" className="absolute inset-0 w-full h-full object-cover opacity-30" />
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/90 to-purple-950/80" />
+        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30" />
+        <MorphingParticles className="absolute inset-0 z-0" />
         
         <div className="container mx-auto px-4 text-center max-w-3xl relative z-10 text-white">
           <div className="mb-6">

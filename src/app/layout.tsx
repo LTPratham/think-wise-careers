@@ -6,7 +6,6 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { WhatsAppButton } from "@/components/ui/whatsapp-button";
 import { PageLoader } from "@/components/ui/PageLoader";
-import MorphingParticles from "@/components/3d/MorphingParticles";
 
 // Outfit for modern, premium headings
 const outfit = Outfit({ 
@@ -36,7 +35,6 @@ export default function RootLayout({
         className={`${inter.variable} ${outfit.variable} font-sans antialiased min-h-screen flex flex-col bg-slate-50`}
       >
         <PageLoader />
-        <MorphingParticles />
         <Header />
         <main className="flex-grow relative z-10">
           {children}
