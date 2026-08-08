@@ -10,7 +10,6 @@ export default function Home() {
     <div className="flex flex-col min-h-screen">
       {/* Premium Hero Section */}
       <section className="relative overflow-hidden pt-32 pb-24 lg:pt-40 lg:pb-32 mesh-bg min-h-screen flex items-center">
-        <MorphingParticles className="absolute inset-0 z-0" />
         {/* 3D Background */}
         <div className="absolute inset-0 z-0 opacity-80 pointer-events-auto">
           <BookAirplane3D />
