@@ -39,9 +39,9 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-2xl font-bold font-outfit text-slate-900 mb-3">Visit Our Office</h3>
                 <p className="text-slate-600 leading-relaxed mb-4">
-                  123 Education Hub, Global Tech Park<br />
-                  Sector 62, Noida, Uttar Pradesh 201301<br />
-                  India
+                  2nd floor, Chopra Complex, I-51<br />
+                  Narayan Sagar, Mansarovar<br />
+                  Jaipur, Rajasthan (302026)
                 </p>
                 <a href="#" className="text-indigo-600 font-semibold text-sm hover:underline flex items-center">
                   Get Directions <ChevronRight className="w-4 h-4 ml-1" />
@@ -108,7 +108,7 @@ export default function ContactPage() {
       {/* Google Map */}
       <section className="h-[500px] w-full bg-slate-200 mt-12 relative grayscale hover:grayscale-0 transition-all duration-1000">
         <iframe 
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d112000!2d77.2000!3d28.6000!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjjCsDM2JzAwLjAiTiA3N8KwMTInMDAuMCJF!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin" 
+          src="https://maps.google.com/maps?q=Chopra%20Complex,%20Mansarovar,%20Jaipur&t=&z=15&ie=UTF8&iwloc=&output=embed" 
           width="100%" 
           height="100%" 
           style={{ border: 0 }} 

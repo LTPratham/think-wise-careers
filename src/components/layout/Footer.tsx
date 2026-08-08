@@ -45,7 +45,11 @@ export function Footer() {
           <ul className="space-y-3 text-sm">
             <li className="flex items-start space-x-3">
               <span className="text-slate-500">📍</span>
-              <span>123 Education Hub, New Delhi, India 110001</span>
+              <span>
+                2nd floor, Chopra Complex, I-51<br/>
+                Narayan Sagar, Mansarovar<br/>
+                Jaipur, Rajasthan (302026)
+              </span>
             </li>
             <li className="flex items-center space-x-3">
               <span className="text-slate-500">📞</span>
