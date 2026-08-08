@@ -1,29 +1,26 @@
 import { Resend } from 'resend';
 
-// Different clients for different departments
-const resendCounselling = process.env.RESEND_API_KEY_COUNSELLING ? new Resend(process.env.RESEND_API_KEY_COUNSELLING) : null;
-const resendAdmissions = process.env.RESEND_API_KEY_ADMISSIONS ? new Resend(process.env.RESEND_API_KEY_ADMISSIONS) : null;
-const resendPartnerships = process.env.RESEND_API_KEY_PARTNERSHIPS ? new Resend(process.env.RESEND_API_KEY_PARTNERSHIPS) : null;
+// We now use the Admissions API key as our Master Key since the domain thinkwisecareers.com is verified on it.
+const resend = process.env.RESEND_API_KEY_ADMISSIONS ? new Resend(process.env.RESEND_API_KEY_ADMISSIONS) : null;
 
 export async function sendLeadNotificationEmail(leadData: any) {
+  if (!resend) {
+    console.warn(`[Resend] Missing Master API key (RESEND_API_KEY_ADMISSIONS)`);
+    return;
+  }
+
   try {
-    let client = resendAdmissions;
     let targetEmail = 'admissions@thinkwisecareers.com';
     let department = "Admissions";
 
     if (leadData.serviceInterest === 'Career Counselling') {
-      client = resendCounselling;
       targetEmail = 'counselling@thinkwisecareers.com';
       department = "Counselling";
     }
 
-    if (!client) {
-      console.warn(`[Resend] Missing API key for ${department} notifications`);
-      return;
-    }
-
-    await client.emails.send({
-      from: 'onboarding@resend.dev',
+    // 1. Send internal alert to the team
+    await resend.emails.send({
+      from: 'Admissions <admissions@thinkwisecareers.com>',
       to: targetEmail,
       subject: `New Lead (${department}): ${leadData.name} - ${leadData.serviceInterest || 'General Enquiry'}`,
       html: `
@@ -38,21 +35,43 @@ export async function sendLeadNotificationEmail(leadData: any) {
         <p>View this lead in the Admin Dashboard: <a href="https://thinkwisecareers.com/admin/leads">thinkwisecareers.com/admin/leads</a></p>
       `
     });
-    console.log(`[Resend] Lead notification email sent to ${targetEmail}`);
+    console.log(`[Resend] Lead internal alert sent to ${targetEmail}`);
+
+    // 2. Send auto-reply to the student (if they provided a real email)
+    if (leadData.email && leadData.email !== "no-email@example.com") {
+      await resend.emails.send({
+        from: 'Think Wise Careers <admissions@thinkwisecareers.com>',
+        to: leadData.email,
+        subject: `Thank you for contacting Think Wise Careers!`,
+        html: `
+          <h3>Hi ${leadData.name},</h3>
+          <p>Thank you for reaching out to Think Wise Careers regarding <strong>${leadData.serviceInterest || 'our services'}</strong>.</p>
+          <p>We have successfully received your enquiry. One of our expert counsellors will review your details and contact you shortly at ${leadData.phone}.</p>
+          <p>If you have any immediate questions, feel free to reply directly to this email.</p>
+          <br/>
+          <p>Best Regards,</p>
+          <p><strong>The Think Wise Careers Team</strong></p>
+          <p><a href="https://thinkwisecareers.com">thinkwisecareers.com</a></p>
+        `
+      });
+      console.log(`[Resend] Auto-reply sent to student at ${leadData.email}`);
+    }
+
   } catch (error) {
     console.error('[Resend Error]', error);
   }
 }
 
 export async function sendPartnerNotificationEmail(partnerData: any) {
-  try {
-    if (!resendPartnerships) {
-      console.warn(`[Resend] Missing API key for Partnerships notifications`);
-      return;
-    }
+  if (!resend) {
+    console.warn(`[Resend] Missing Master API key (RESEND_API_KEY_ADMISSIONS)`);
+    return;
+  }
 
-    await resendPartnerships.emails.send({
-      from: 'onboarding@resend.dev',
+  try {
+    // 1. Send internal alert to the team
+    await resend.emails.send({
+      from: 'Partnerships <admissions@thinkwisecareers.com>',
       to: 'partnerships@thinkwisecareers.com',
       subject: `New Partner Enquiry: ${partnerData.organizationName}`,
       html: `
@@ -65,7 +84,27 @@ export async function sendPartnerNotificationEmail(partnerData: any) {
         <p><strong>Message:</strong> ${partnerData.message}</p>
       `
     });
-    console.log(`[Resend] Partner notification email sent to partnerships@thinkwisecareers.com`);
+    console.log(`[Resend] Partner internal alert sent to partnerships@thinkwisecareers.com`);
+
+    // 2. Send auto-reply to the partner
+    if (partnerData.contactEmail) {
+      await resend.emails.send({
+        from: 'Think Wise Careers <admissions@thinkwisecareers.com>',
+        to: partnerData.contactEmail,
+        subject: `Partnership Enquiry Received - Think Wise Careers`,
+        html: `
+          <h3>Hi ${partnerData.contactName},</h3>
+          <p>Thank you for your interest in partnering with Think Wise Careers.</p>
+          <p>We have received your enquiry for ${partnerData.organizationName}. Our partnerships team will review your details and get back to you shortly.</p>
+          <br/>
+          <p>Best Regards,</p>
+          <p><strong>The Think Wise Careers Team</strong></p>
+          <p><a href="https://thinkwisecareers.com">thinkwisecareers.com</a></p>
+        `
+      });
+      console.log(`[Resend] Auto-reply sent to partner at ${partnerData.contactEmail}`);
+    }
+
   } catch (error) {
     console.error('[Resend Error]', error);
   }
