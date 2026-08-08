@@ -4,6 +4,7 @@ import { QuickEnquirySchema, FullEnquirySchema } from "@/lib/validators";
 import { checkDuplicate } from "@/lib/leadDedup";
 import { qualifyLead } from "@/lib/leadQualification";
 import { enqueueJob } from "@/lib/jobQueue";
+import { sendLeadNotificationEmail } from "@/lib/resend";
 import { JobType, TouchpointChannel } from "@prisma/client";
 
 export async function POST(req: Request) {
@@ -83,6 +84,8 @@ export async function POST(req: Request) {
         type: "NEW_ENQUIRY",
         details: validatedData
       }),
+      // Trigger the real email synchronously without waiting for the stub queue
+      sendLeadNotificationEmail({ ...validatedData, email, sourcePage, leadId })
     ]);
 
     return NextResponse.json({
