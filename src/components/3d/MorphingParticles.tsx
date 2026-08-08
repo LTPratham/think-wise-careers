@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 
-export default function MorphingParticles() {
+export default function MorphingParticles({ className = "absolute inset-0 z-0 pointer-events-none" }: { className?: string }) {
   const mountRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -12,11 +12,19 @@ export default function MorphingParticles() {
     setMounted(true);
 
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+    
+    // Use container dimensions instead of window
+    const getContainerSize = () => {
+      if (!mountRef.current) return { width: window.innerWidth, height: window.innerHeight };
+      const { clientWidth, clientHeight } = mountRef.current;
+      return { width: clientWidth || window.innerWidth, height: clientHeight || window.innerHeight };
+    };
+
+    const { width, height } = getContainerSize();
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
     camera.position.z = 6;
 
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    // Initial size will be set by handleResize below
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     mountRef.current.appendChild(renderer.domElement);
 
@@ -67,14 +75,13 @@ export default function MorphingParticles() {
     animate();
 
     const handleResize = () => {
-      camera.aspect = window.innerWidth / window.innerHeight;
+      const { width, height } = getContainerSize();
+      camera.aspect = width / height;
       camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setSize(width, height);
     };
 
     window.addEventListener('resize', handleResize);
-    
-    // Initial size setup
     handleResize();
 
     return () => {
@@ -92,7 +99,7 @@ export default function MorphingParticles() {
   return (
     <div 
       ref={mountRef}
-      className={`fixed inset-0 z-40 pointer-events-none transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
+      className={`${className} transition-opacity duration-[2000ms] ease-out ${mounted ? 'opacity-100' : 'opacity-0'}`} 
     />
   );
 }
