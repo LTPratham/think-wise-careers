@@ -122,36 +122,8 @@ export default async function StudyAbroadCountryPage({ params }: { params: Promi
                 </div>
               </div>
 
-              {/* Cost & Scholarships */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
-                  <h2 className="text-2xl font-bold font-outfit text-slate-900 mb-6 border-b pb-4">Cost of Study</h2>
-                  <div className="prose prose-slate max-w-none whitespace-pre-wrap text-slate-600">
-                    {(() => {
-                      let parsedCost: Record<string, string> = {};
-                      try {
-                        parsedCost = typeof country.costBreakdown === 'string'
-                          ? JSON.parse(country.costBreakdown)
-                          : (country.costBreakdown as Record<string, string> || {});
-                      } catch (e) {
-                        // ignore parse errors
-                      }
-
-                      return Object.keys(parsedCost).length > 0 ? (
-                         <ul className="space-y-3 list-none pl-0">
-                           {Object.entries(parsedCost).map(([key, value]) => (
-                              <li key={key} className="flex justify-between border-b border-dashed border-slate-200 pb-2">
-                                <span className="font-medium text-slate-700">{key}</span>
-                                <span className="text-indigo-600 font-bold">{value as string}</span>
-                              </li>
-                           ))}
-                         </ul>
-                      ) : (
-                        <p>Tuition fees and living costs vary by university. Reach out for a customized budget estimate.</p>
-                      );
-                    })()}
-                  </div>
-                </div>
+              {/* Scholarships */}
+              <div className="grid md:grid-cols-1 gap-6">
                 
                 <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-3xl p-8 shadow-sm border border-indigo-100">
                   <h2 className="text-2xl font-bold font-outfit text-indigo-900 mb-4">Scholarships</h2>

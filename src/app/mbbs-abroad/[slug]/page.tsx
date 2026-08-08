@@ -64,9 +64,6 @@ export default async function MBBSCountryPage({ params }: { params: Promise<{ sl
               <Button asChild size="lg" className="rounded-full">
                 <a href="#universities">View Universities</a>
               </Button>
-              <Button asChild variant="outline" size="lg" className="rounded-full bg-transparent border-slate-700 text-white hover:bg-slate-800">
-                <a href="#fees">Fee Structure</a>
-              </Button>
             </div>
           </div>
           
@@ -104,40 +101,8 @@ export default async function MBBSCountryPage({ params }: { params: Promise<{ sl
           {/* Main Content */}
           <div className="lg:w-2/3 space-y-12">
             
-            {/* Fees & Eligibility Grid */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div id="fees" className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
-                <div className="w-10 h-10 bg-green-100 text-green-600 rounded-lg flex items-center justify-center mb-4">
-                  <Wallet className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-bold font-outfit text-slate-900 mb-4 border-b pb-2">Cost Overview</h3>
-                <div className="text-slate-600 text-sm whitespace-pre-wrap">
-                  {(() => {
-                    let parsedFees: Record<string, string> = {};
-                    try {
-                      parsedFees = typeof country.feeStructure === 'string' 
-                        ? JSON.parse(country.feeStructure) 
-                        : (country.feeStructure as Record<string, string> || {});
-                    } catch (e) {
-                      // ignore parse errors
-                    }
-
-                    return Object.keys(parsedFees).length > 0 ? (
-                       <ul className="space-y-3 list-none pl-0">
-                         {Object.entries(parsedFees).map(([key, value]) => (
-                            <li key={key} className="flex justify-between border-b border-dashed border-slate-200 pb-2">
-                              <span className="font-medium text-slate-700">{key}</span>
-                              <span className="text-green-600 font-bold">{value as string}</span>
-                            </li>
-                         ))}
-                       </ul>
-                    ) : (
-                      <p>Contact us for a detailed breakdown of tuition and hostel fees.</p>
-                    );
-                  })()}
-                </div>
-              </div>
-              
+            {/* Eligibility */}
+            <div>
               <div id="eligibility" className="bg-white rounded-2xl p-6 shadow-sm border border-slate-200">
                 <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-5 h-5" />

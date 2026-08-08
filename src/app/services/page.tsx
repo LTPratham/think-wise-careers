@@ -65,11 +65,12 @@ export default async function ServicesHub() {
                       {service.description}
                     </p>
                     
-                    <Button asChild variant="outline" className="w-full mt-auto group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all shadow-sm">
-                      <Link href={`/services/${service.slug}`}>
-                        {service.ctaText || "Explore Details"} <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
-                      </Link>
-                    </Button>
+                    <Link 
+                      href={`/services/${service.slug}`}
+                      className="inline-flex h-9 items-center justify-center rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-900 w-full mt-auto group-hover:bg-indigo-600 group-hover:text-white group-hover:border-indigo-600 transition-all shadow-sm"
+                    >
+                      {service.ctaText || "Explore Details"} <ArrowRight className="w-4 h-4 ml-2 transition-transform group-hover:translate-x-1" />
+                    </Link>
                   </CardContent>
                 </Card>
               ))}
