@@ -43,7 +43,7 @@ export default function ContactPage() {
                   Narayan Sagar, Mansarovar<br />
                   Jaipur, Rajasthan (302026)
                 </p>
-                <a href="#" className="text-indigo-600 font-semibold text-sm hover:underline flex items-center">
+                <a href="https://share.google/qpK9liPCpBjJSOHq2" target="_blank" rel="noopener noreferrer" className="text-indigo-600 font-semibold text-sm hover:underline flex items-center">
                   Get Directions <ChevronRight className="w-4 h-4 ml-1" />
                 </a>
               </div>
