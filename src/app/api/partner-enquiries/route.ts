@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { PartnerEnquirySchema } from "@/lib/validators";
 import { enqueueJob } from "@/lib/jobQueue";
 import { JobType } from "@prisma/client";
+import { sendPartnerNotificationEmail } from "@/lib/resend";
 
 export async function POST(req: Request) {
   try {
@@ -22,6 +23,9 @@ export async function POST(req: Request) {
       type: "NEW_PARTNER_ENQUIRY",
       details: validatedData
     });
+
+    // Trigger the real email synchronously without waiting for the stub queue
+    sendPartnerNotificationEmail(validatedData);
 
     return NextResponse.json({ success: true, id: enquiry.id });
   } catch (error: any) {
