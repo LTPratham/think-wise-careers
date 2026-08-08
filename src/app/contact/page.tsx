@@ -55,7 +55,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-xl font-bold font-outfit text-slate-900 mb-2">Call Us</h3>
                 <p className="text-slate-500 text-sm mb-4">Mon-Sat from 10am to 7pm.</p>
-                <p className="text-lg font-semibold text-slate-900">+91 98765 43210</p>
+                <p className="text-lg font-semibold text-slate-900">+91 73000 36507</p>
               </div>
 
               {/* WhatsApp */}
@@ -65,7 +65,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-xl font-bold font-outfit text-slate-900 mb-2">WhatsApp</h3>
                 <p className="text-slate-500 text-sm mb-4">Instant chat support available.</p>
-                <p className="text-lg font-semibold text-slate-900">+91 98765 43210</p>
+                <p className="text-lg font-semibold text-slate-900">+91 73000 36507</p>
               </div>
 
               {/* Email */}
@@ -75,7 +75,7 @@ export default function ContactPage() {
                 </div>
                 <h3 className="text-xl font-bold font-outfit text-slate-900 mb-2">Email</h3>
                 <p className="text-slate-500 text-sm mb-4">We'll respond within 24 hours.</p>
-                <p className="text-lg font-semibold text-slate-900">hello@thinkwise.com</p>
+                <p className="text-lg font-semibold text-slate-900">counselling@thinkwisecareers.com</p>
               </div>
 
               {/* Hours */}
