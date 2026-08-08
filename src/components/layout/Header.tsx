@@ -20,8 +20,8 @@ export function Header() {
         </nav>
 
         <div className="flex items-center space-x-4">
-          <a href="tel:+919999999999" className="hidden lg:block text-slate-600 font-medium hover:text-indigo-600 transition-colors">
-            +91 99999 99999
+          <a href="tel:+917300036507" className="hidden lg:block text-slate-600 font-medium hover:text-indigo-600 transition-colors">
+            +91 73000 36507
           </a>
           <Button asChild className="rounded-full px-6 shadow-md shadow-indigo-200 hover:shadow-lg hover:shadow-indigo-300 hover:-translate-y-0.5 transition-all bg-gradient-to-r from-indigo-600 to-purple-600 border-0">
             <Link href="/contact">Book Free Counselling</Link>

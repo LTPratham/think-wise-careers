@@ -123,7 +123,7 @@ export function PartnerEnquiryForm() {
               <FormItem>
                 <FormLabel>Phone Number</FormLabel>
                 <FormControl>
-                  <Input placeholder="+91 99999 99999" {...field} />
+                  <Input placeholder="+91 73000 36507" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>

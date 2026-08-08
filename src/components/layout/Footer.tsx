@@ -49,11 +49,15 @@ export function Footer() {
             </li>
             <li className="flex items-center space-x-3">
               <span className="text-slate-500">📞</span>
-              <a href="tel:+919999999999" className="hover:text-white transition-colors">+91 99999 99999</a>
+              <a href="tel:+917300036507" className="hover:text-white transition-colors">+91 73000 36507</a>
             </li>
-            <li className="flex items-center space-x-3">
-              <span className="text-slate-500">✉️</span>
-              <a href="mailto:hello@thinkwisecareers.com" className="hover:text-white transition-colors">hello@thinkwisecareers.com</a>
+            <li className="flex items-start space-x-3 text-sm">
+              <span className="text-slate-500 mt-1">✉️</span>
+              <div className="flex flex-col space-y-1">
+                <a href="mailto:counselling@thinkwisecareers.com" className="hover:text-white transition-colors">counselling@thinkwisecareers.com</a>
+                <a href="mailto:admissions@thinkwisecareers.com" className="hover:text-white transition-colors">admissions@thinkwisecareers.com</a>
+                <a href="mailto:partnerships@thinkwisecareers.com" className="hover:text-white transition-colors">partnerships@thinkwisecareers.com</a>
+              </div>
             </li>
           </ul>
         </div>
