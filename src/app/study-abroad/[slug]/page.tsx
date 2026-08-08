@@ -99,15 +99,26 @@ export default async function StudyAbroadCountryPage({ params }: { params: Promi
                   Popular Courses
                 </h2>
                 <div className="prose prose-slate max-w-none text-slate-600">
-                  {country.popularCourses && JSON.parse(country.popularCourses as string)?.length > 0 ? (
-                    <ul className="grid sm:grid-cols-2 gap-4 list-none pl-0">
-                      {JSON.parse(country.popularCourses as string).map((course: string, idx: number) => (
-                        <li key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-100 font-medium text-slate-700">{course}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p>Information on popular courses is being updated. Consult our experts for tailored course recommendations.</p>
-                  )}
+                  {(() => {
+                    let parsedCourses: string[] = [];
+                    try {
+                      parsedCourses = typeof country.popularCourses === 'string'
+                        ? JSON.parse(country.popularCourses)
+                        : (country.popularCourses as string[] || []);
+                    } catch (e) {
+                      // ignore parse errors
+                    }
+
+                    return parsedCourses.length > 0 ? (
+                      <ul className="grid sm:grid-cols-2 gap-4 list-none pl-0">
+                        {parsedCourses.map((course: string, idx: number) => (
+                          <li key={idx} className="bg-slate-50 p-3 rounded-lg border border-slate-100 font-medium text-slate-700">{course}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p>Information on popular courses is being updated. Consult our experts for tailored course recommendations.</p>
+                    );
+                  })()}
                 </div>
               </div>
 
@@ -116,18 +127,29 @@ export default async function StudyAbroadCountryPage({ params }: { params: Promi
                 <div className="bg-white rounded-3xl p-8 shadow-sm border border-slate-200">
                   <h2 className="text-2xl font-bold font-outfit text-slate-900 mb-6 border-b pb-4">Cost of Study</h2>
                   <div className="prose prose-slate max-w-none whitespace-pre-wrap text-slate-600">
-                    {country.costBreakdown && Object.keys(JSON.parse(country.costBreakdown as string)).length > 0 ? (
-                       <ul className="space-y-3 list-none pl-0">
-                         {Object.entries(JSON.parse(country.costBreakdown as string)).map(([key, value]) => (
-                            <li key={key} className="flex justify-between border-b border-dashed border-slate-200 pb-2">
-                              <span className="font-medium text-slate-700">{key}</span>
-                              <span className="text-indigo-600 font-bold">{value as string}</span>
-                            </li>
-                         ))}
-                       </ul>
-                    ) : (
-                      <p>Tuition fees and living costs vary by university. Reach out for a customized budget estimate.</p>
-                    )}
+                    {(() => {
+                      let parsedCost: Record<string, string> = {};
+                      try {
+                        parsedCost = typeof country.costBreakdown === 'string'
+                          ? JSON.parse(country.costBreakdown)
+                          : (country.costBreakdown as Record<string, string> || {});
+                      } catch (e) {
+                        // ignore parse errors
+                      }
+
+                      return Object.keys(parsedCost).length > 0 ? (
+                         <ul className="space-y-3 list-none pl-0">
+                           {Object.entries(parsedCost).map(([key, value]) => (
+                              <li key={key} className="flex justify-between border-b border-dashed border-slate-200 pb-2">
+                                <span className="font-medium text-slate-700">{key}</span>
+                                <span className="text-indigo-600 font-bold">{value as string}</span>
+                              </li>
+                           ))}
+                         </ul>
+                      ) : (
+                        <p>Tuition fees and living costs vary by university. Reach out for a customized budget estimate.</p>
+                      );
+                    })()}
                   </div>
                 </div>
                 

@@ -112,18 +112,29 @@ export default async function MBBSCountryPage({ params }: { params: Promise<{ sl
                 </div>
                 <h3 className="text-xl font-bold font-outfit text-slate-900 mb-4 border-b pb-2">Cost Overview</h3>
                 <div className="text-slate-600 text-sm whitespace-pre-wrap">
-                  {country.feeStructure && Object.keys(JSON.parse(country.feeStructure as string)).length > 0 ? (
+                  {(() => {
+                    let parsedFees: Record<string, string> = {};
+                    try {
+                      parsedFees = typeof country.feeStructure === 'string' 
+                        ? JSON.parse(country.feeStructure) 
+                        : (country.feeStructure as Record<string, string> || {});
+                    } catch (e) {
+                      // ignore parse errors
+                    }
+
+                    return Object.keys(parsedFees).length > 0 ? (
                        <ul className="space-y-3 list-none pl-0">
-                         {Object.entries(JSON.parse(country.feeStructure as string)).map(([key, value]) => (
+                         {Object.entries(parsedFees).map(([key, value]) => (
                             <li key={key} className="flex justify-between border-b border-dashed border-slate-200 pb-2">
                               <span className="font-medium text-slate-700">{key}</span>
                               <span className="text-green-600 font-bold">{value as string}</span>
                             </li>
                          ))}
                        </ul>
-                  ) : (
-                    <p>Contact us for a detailed breakdown of tuition and hostel fees.</p>
-                  )}
+                    ) : (
+                      <p>Contact us for a detailed breakdown of tuition and hostel fees.</p>
+                    );
+                  })()}
                 </div>
               </div>
               
