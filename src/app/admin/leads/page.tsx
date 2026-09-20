@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Search, Filter, Eye } from "lucide-react";
+import { Search, Filter, Eye, Download } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -41,6 +41,20 @@ export default async function AdminLeadsPage({
         <div>
           <h2 className="text-3xl font-bold font-outfit text-slate-900">Lead Management</h2>
           <p className="text-slate-500 mt-1">View and manage all student enquiries.</p>
+        </div>
+        <div className="flex gap-2 flex-shrink-0">
+          <Button variant="outline" size="sm" asChild>
+            <a href="/api/admin/leads/export?scope=today" download>
+              <Download className="w-4 h-4 mr-2" />
+              Export Today
+            </a>
+          </Button>
+          <Button variant="default" size="sm" asChild>
+            <a href="/api/admin/leads/export?scope=all" download>
+              <Download className="w-4 h-4 mr-2" />
+              Export All Time
+            </a>
+          </Button>
         </div>
       </div>
 
