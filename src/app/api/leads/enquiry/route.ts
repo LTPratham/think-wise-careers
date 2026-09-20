@@ -11,15 +11,13 @@ export async function POST(req: Request) {
   try {
     const body = await req.json();
 
-    // Determine if it's a quick or full enquiry based on present fields
-    const isFull = body.email !== undefined;
-    
-    // Validate payload
+    // Determine schema based on whether message or consent was submitted
+    const isFull = body.message !== undefined || body.consent !== undefined;
     const schema = isFull ? FullEnquirySchema : QuickEnquirySchema;
     const validatedData = schema.parse(body);
 
     const sourcePage = body.sourcePage || "Unknown";
-    const email = isFull ? (validatedData as any).email : "no-email@example.com";
+    const email = (validatedData as any).email || "no-email@example.com";
     
     // 1. Check for duplicates
     const { isDuplicate, existingLeadId } = await checkDuplicate(
