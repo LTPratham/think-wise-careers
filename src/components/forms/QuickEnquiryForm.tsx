@@ -28,6 +28,7 @@ export function QuickEnquiryForm({ sourcePage = "Home" }: { sourcePage?: string 
     resolver: zodResolver(QuickEnquirySchema),
     defaultValues: {
       name: "",
+      email: "",
       phone: "",
       serviceInterest: "",
     },
@@ -66,9 +67,22 @@ export function QuickEnquiryForm({ sourcePage = "Home" }: { sourcePage?: string 
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>Full Name</FormLabel>
               <FormControl>
                 <Input placeholder="John Doe" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email Address</FormLabel>
+              <FormControl>
+                <Input type="email" placeholder="john@example.com" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
