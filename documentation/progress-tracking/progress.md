@@ -25,6 +25,11 @@
 - [x] Multi-user Team & Staff Management in CRM (`/admin/team`)
 - [x] 1-Click Lead & Meeting assignment to counsellors
 - [x] Counsellor Call Notes & Follow-Up history logger
+- [x] 1-Click Meeting Scheduler Modal from Lead box (`QuickScheduleModal`)
+- [x] 1-Click Call Outcome Dispositions bar (`CallDispositionBar`)
+- [x] Student Application Document Readiness Checklist (`StudentDocumentChecklist`)
+- [x] Google Meet video launcher integration in Meetings Calendar
+- [x] Super Admin Counsellor Performance Scoreboard (`CounsellorScoreboard`)
 - [x] Admin Consultation Meetings Calendar (`/admin/meetings`)
 - [x] Quick CRM Shortcuts (`/crm`, `/portal`) & Mobile Connect QR Code widget
 
