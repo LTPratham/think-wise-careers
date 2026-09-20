@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { requireTeamMember } from "@/lib/rbac";
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
-import { Calendar as CalendarIcon, Clock, Phone, Video, MapPin, Search, Filter, MessageSquare, CheckCircle2, UserCheck, AlertCircle } from "lucide-react";
+import { Calendar as CalendarIcon, Clock, Phone, Video, MapPin, Search, Filter, MessageSquare, CheckCircle2, UserCheck, AlertCircle, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
@@ -19,12 +19,18 @@ export default async function AdminMeetingsPage({
   }
 
   const { user } = auth;
+  const isAdmin = user.role === "ADMIN";
   const params = await searchParams;
   const query = params.q || "";
   const statusFilter = params.status || "";
-  const viewFilter = params.view || "all"; // "all" | "today" | "upcoming"
+  const viewFilter = params.view || "all";
 
   const whereClause: any = {};
+
+  // Strict role isolation: Counsellors ONLY see their assigned meetings
+  if (user.role === "COUNSELLOR") {
+    whereClause.assignedToId = user.id;
+  }
 
   if (query) {
     whereClause.OR = [
@@ -50,7 +56,12 @@ export default async function AdminMeetingsPage({
     whereClause.status = { notIn: ["COMPLETED", "CANCELLED"] };
   }
 
-  // Fetch bookings and team members
+  // Base query for counts
+  const baseCountWhere: any = {};
+  if (user.role === "COUNSELLOR") {
+    baseCountWhere.assignedToId = user.id;
+  }
+
   const [bookings, teamMembers, todayCount, upcomingCount] = await Promise.all([
     prisma.consultationBooking.findMany({
       where: whereClause,
@@ -61,16 +72,25 @@ export default async function AdminMeetingsPage({
         },
       },
     }),
-    prisma.user.findMany({
-      where: { status: "ACTIVE" },
-      select: { id: true, name: true, role: true },
-      orderBy: { name: "asc" },
+    isAdmin
+      ? prisma.user.findMany({
+          where: { status: "ACTIVE" },
+          select: { id: true, name: true, role: true },
+          orderBy: { name: "asc" },
+        })
+      : Promise.resolve([]),
+    prisma.consultationBooking.count({
+      where: {
+        ...baseCountWhere,
+        date: { gte: todayStart, lte: todayEnd },
+      },
     }),
     prisma.consultationBooking.count({
-      where: { date: { gte: todayStart, lte: todayEnd } },
-    }),
-    prisma.consultationBooking.count({
-      where: { date: { gte: todayStart }, status: { notIn: ["COMPLETED", "CANCELLED"] } },
+      where: {
+        ...baseCountWhere,
+        date: { gte: todayStart },
+        status: { notIn: ["COMPLETED", "CANCELLED"] },
+      },
     }),
   ]);
 
@@ -80,15 +100,14 @@ export default async function AdminMeetingsPage({
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold font-outfit text-slate-900">Consultation Calendar & Meetings</h2>
-          <p className="text-slate-500 mt-1">Manage scheduled student calls, video meets, and office visits.</p>
-        </div>
-        <div className="flex gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <a href="/schedule" target="_blank" rel="noopener noreferrer">
-              🔗 Open Booking Page
-            </a>
-          </Button>
+          <h2 className="text-3xl font-bold font-outfit text-slate-900">
+            {isAdmin ? "Consultation Calendar & Meetings" : "My Scheduled Calls & Consultations"}
+          </h2>
+          <p className="text-slate-500 mt-1">
+            {isAdmin 
+              ? "Oversee and assign all student calls, video meets, and office visits across the team."
+              : `Welcome ${user.name}. Here are the consultation calls and meetings assigned to you.`}
+          </p>
         </div>
       </div>
 
@@ -96,7 +115,9 @@ export default async function AdminMeetingsPage({
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Today's Schedule</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              {isAdmin ? "Team Calls Today" : "My Calls Today"}
+            </p>
             <h3 className="text-2xl font-bold text-slate-900 mt-1">{todayCount} Calls / Meets</h3>
           </div>
           <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
@@ -106,8 +127,8 @@ export default async function AdminMeetingsPage({
 
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Upcoming Confirmed</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-1">{upcomingCount} Pending</h3>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Upcoming Pending</p>
+            <h3 className="text-2xl font-bold text-slate-900 mt-1">{upcomingCount} Upcoming</h3>
           </div>
           <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
             <Clock className="w-5 h-5" />
@@ -116,7 +137,7 @@ export default async function AdminMeetingsPage({
 
         <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Bookings</p>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Scheduled</p>
             <h3 className="text-2xl font-bold text-slate-900 mt-1">{bookings.length} Filtered</h3>
           </div>
           <div className="w-10 h-10 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
@@ -173,7 +194,7 @@ export default async function AdminMeetingsPage({
                       }`}>
                         {b.status}
                       </span>
-                      {b.assignedTo && (
+                      {isAdmin && b.assignedTo && (
                         <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
                           <UserCheck className="w-3 h-3" /> Assigned: {b.assignedTo.name}
                         </span>
@@ -196,7 +217,7 @@ export default async function AdminMeetingsPage({
                   </Button>
                   <Button size="sm" variant="outline" asChild className="text-xs h-8">
                     <a href={`tel:${b.phone}`}>
-                      📞 Call Now
+                      📞 Start Call
                     </a>
                   </Button>
                 </div>
@@ -214,7 +235,7 @@ export default async function AdminMeetingsPage({
                   <span className="font-semibold text-slate-700 block mb-1">🎯 Focus & Mode:</span>
                   <div className="font-medium text-slate-900">{b.serviceInterest || "General Guidance"}</div>
                   <div className="text-slate-500 mt-0.5">
-                    Mode: {b.mode === "PHONE_CALL" ? "📞 Phone" : b.mode === "GOOGLE_MEET" ? "💻 Google Meet" : "🏢 Jaipur Office"}
+                    Mode: {b.mode === "PHONE_CALL" ? "📞 Phone Call" : b.mode === "GOOGLE_MEET" ? "💻 Google Meet Video" : "🏢 Jaipur Office"}
                   </div>
                   {(b.targetCountry || b.targetDegree) && (
                     <div className="text-slate-500 mt-0.5">Target: {b.targetCountry} {b.targetDegree ? `(${b.targetDegree})` : ""}</div>
@@ -223,8 +244,8 @@ export default async function AdminMeetingsPage({
 
                 <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 flex flex-col justify-between">
                   <div>
-                    <span className="font-semibold text-slate-700 block mb-1">📝 Student Note / Questions:</span>
-                    <p className="text-slate-700 italic">{b.notes || "No extra note entered."}</p>
+                    <span className="font-semibold text-slate-700 block mb-1">📝 Student's Submitted Notes:</span>
+                    <p className="text-slate-700 italic">{b.notes || "No extra note entered by student."}</p>
                   </div>
                   <div className="pt-2">
                     <MeetingActions 
@@ -232,6 +253,9 @@ export default async function AdminMeetingsPage({
                       currentStatus={b.status} 
                       assignedToId={b.assignedToId} 
                       teamMembers={teamMembers} 
+                      isAdmin={isAdmin}
+                      phone={b.phone}
+                      mode={b.mode}
                     />
                   </div>
                 </div>
@@ -243,8 +267,12 @@ export default async function AdminMeetingsPage({
         {bookings.length === 0 && (
           <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-500">
             <AlertCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
-            <p className="font-medium text-slate-700">No consultation bookings found</p>
-            <p className="text-xs text-slate-400 mt-1">Bookings made by students will appear in this calendar view.</p>
+            <p className="font-medium text-slate-700">
+              {user.role === "COUNSELLOR" ? "No meetings currently assigned to you" : "No consultation bookings found"}
+            </p>
+            <p className="text-xs text-slate-400 mt-1">
+              {user.role === "COUNSELLOR" ? "When the admin assigns a meeting or call to you, it will appear here." : "Bookings made by students will appear in this calendar view."}
+            </p>
           </div>
         )}
       </div>

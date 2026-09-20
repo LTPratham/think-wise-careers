@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
 import { ChevronLeft, Mail, Phone, Calendar, AlertTriangle, UserCheck, MessageSquare } from "lucide-react";
@@ -8,8 +8,16 @@ import { LeadCounsellorSelect } from "@/components/admin/LeadCounsellorSelect";
 import { LeadNotesSection } from "@/components/admin/LeadNotesSection";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { requireTeamMember } from "@/lib/rbac";
 
 export default async function LeadDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const auth = await requireTeamMember();
+  if (auth instanceof Response) {
+    redirect("/login");
+  }
+
+  const { user } = auth;
+  const isAdmin = user.role === "ADMIN";
   const { id } = await params;
 
   const [lead, teamMembers] = await Promise.all([
@@ -32,14 +40,21 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         },
       },
     }),
-    prisma.user.findMany({
-      where: { status: "ACTIVE" },
-      select: { id: true, name: true, role: true },
-      orderBy: { name: "asc" },
-    }),
+    isAdmin
+      ? prisma.user.findMany({
+          where: { status: "ACTIVE" },
+          select: { id: true, name: true, role: true },
+          orderBy: { name: "asc" },
+        })
+      : Promise.resolve([]),
   ]);
 
   if (!lead) notFound();
+
+  // Strict Security Check: If logged in as Counsellor, must be assigned to this lead!
+  if (user.role === "COUNSELLOR" && lead.assignedToId !== user.id) {
+    redirect("/admin/leads");
+  }
 
   const whatsappUrl = `https://wa.me/${lead.phone.replace(/[^0-9]/g, "")}?text=Hello%20${encodeURIComponent(lead.name)},%20I%20am%20calling%20from%20Think%20Wise%20Careers%20regarding%20your%20enquiry.`;
 
@@ -64,7 +79,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           </Button>
           <Button size="sm" variant="outline" asChild>
             <a href={`tel:${lead.phone}`}>
-              📞 Call
+              📞 Call Student
             </a>
           </Button>
         </div>
@@ -76,7 +91,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
         <div className="md:col-span-1 space-y-6">
           <Card>
             <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg">Contact Information</CardTitle>
+              <CardTitle className="text-lg font-outfit">Contact Information</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-4">
               <div>
@@ -94,13 +109,16 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
               
               <hr className="my-4 border-slate-100" />
               
-              <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Assign Counsellor</p>
-                <LeadCounsellorSelect leadId={lead.id} currentAssignedId={lead.assignedToId} teamMembers={teamMembers} />
-              </div>
+              {/* Super Admin ONLY: Assign Counsellor */}
+              {isAdmin && (
+                <div>
+                  <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Assign Counsellor</p>
+                  <LeadCounsellorSelect leadId={lead.id} currentAssignedId={lead.assignedToId} teamMembers={teamMembers} />
+                </div>
+              )}
 
               <div>
-                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Lead Status</p>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Update Lead Status</p>
                 <LeadStatusSelect leadId={lead.id} currentStatus={lead.status} />
               </div>
             </CardContent>
@@ -108,7 +126,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
           <Card>
             <CardHeader className="bg-slate-50 border-b border-slate-100 pb-4">
-              <CardTitle className="text-lg">Lead Attributes</CardTitle>
+              <CardTitle className="text-lg font-outfit">Lead Attributes</CardTitle>
             </CardHeader>
             <CardContent className="pt-6 space-y-3.5 text-sm">
               <div className="flex justify-between items-center">
@@ -148,10 +166,10 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </CardContent>
           </Card>
 
-          {/* Initial Message */}
+          {/* Student's Initial Message (Read Only) */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base font-outfit">Initial Enquiry Message</CardTitle>
+              <CardTitle className="text-base font-outfit">Student's Initial Enquiry Message</CardTitle>
             </CardHeader>
             <CardContent>
               {lead.message ? (

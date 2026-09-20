@@ -4,18 +4,24 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Check, X, UserCheck } from "lucide-react";
+import { Check, X, UserCheck, Phone, Video } from "lucide-react";
 
 export function MeetingActions({
   bookingId,
   currentStatus,
   assignedToId,
-  teamMembers,
+  teamMembers = [],
+  isAdmin = false,
+  phone,
+  mode,
 }: {
   bookingId: string;
   currentStatus: string;
   assignedToId?: string | null;
-  teamMembers: { id: string; name: string; role: string }[];
+  teamMembers?: { id: string; name: string; role: string }[];
+  isAdmin?: boolean;
+  phone?: string;
+  mode?: string;
 }) {
   const [status, setStatus] = useState(currentStatus);
   const [assignedId, setAssignedId] = useState(assignedToId || "unassigned");
@@ -59,23 +65,39 @@ export function MeetingActions({
 
   return (
     <div className="flex flex-wrap items-center gap-2">
-      {/* Assign to Team */}
-      <div className="w-40">
-        <Select value={assignedId} onValueChange={(val) => { if (val) updateAssignment(val); }} disabled={isUpdating}>
-          <SelectTrigger className="h-8 text-xs bg-slate-50">
-            <UserCheck className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
-            <SelectValue placeholder="Assign Staff" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="unassigned" className="text-xs">Unassigned</SelectItem>
-            {teamMembers.map((member) => (
-              <SelectItem key={member.id} value={member.id} className="text-xs">
-                {member.name} ({member.role})
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      {/* Assign to Team (Super Admin ONLY) */}
+      {isAdmin && (
+        <div className="w-40">
+          <Select value={assignedId} onValueChange={(val) => { if (val) updateAssignment(val); }} disabled={isUpdating}>
+            <SelectTrigger className="h-8 text-xs bg-slate-50">
+              <UserCheck className="w-3.5 h-3.5 mr-1.5 text-slate-400" />
+              <SelectValue placeholder="Assign Staff" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="unassigned" className="text-xs">Unassigned</SelectItem>
+              {teamMembers.map((member) => (
+                <SelectItem key={member.id} value={member.id} className="text-xs">
+                  {member.name} ({member.role})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Action: Start Call (for counsellors and admin) */}
+      {phone && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="h-8 text-xs text-blue-700 hover:bg-blue-50 border-blue-200"
+          asChild
+        >
+          <a href={`tel:${phone}`}>
+            <Phone className="w-3 h-3 mr-1" /> Call Student
+          </a>
+        </Button>
+      )}
 
       {/* Quick Status Buttons */}
       {status !== "COMPLETED" && (
@@ -86,11 +108,11 @@ export function MeetingActions({
           onClick={() => updateStatus("COMPLETED")}
           disabled={isUpdating}
         >
-          <Check className="w-3.5 h-3.5 mr-1" /> Done
+          <Check className="w-3.5 h-3.5 mr-1" /> Mark Done
         </Button>
       )}
 
-      {status !== "CANCELLED" && (
+      {isAdmin && status !== "CANCELLED" && (
         <Button
           size="sm"
           variant="ghost"

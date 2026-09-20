@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma";
+import { requireTeamMember } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Search, Filter, Eye, Download, UserCheck, MessageSquare } from "lucide-react";
+import { Search, Filter, Eye, Download, UserCheck, MessageSquare, AlertCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -10,12 +12,29 @@ export default async function AdminLeadsPage({
 }: {
   searchParams: Promise<{ q?: string; status?: string; assigned?: string }>;
 }) {
+  const auth = await requireTeamMember();
+  if (auth instanceof Response) {
+    redirect("/login");
+  }
+
+  const { user } = auth;
+  const isAdmin = user.role === "ADMIN";
   const params = await searchParams;
   const query = params.q || "";
   const statusFilter = params.status || "";
   const assignedFilter = params.assigned || "";
 
   const whereClause: any = {};
+
+  // Strict role isolation: Counsellor ONLY sees leads assigned to them!
+  if (user.role === "COUNSELLOR") {
+    whereClause.assignedToId = user.id;
+  } else if (assignedFilter === "unassigned") {
+    whereClause.assignedToId = null;
+  } else if (assignedFilter) {
+    whereClause.assignedToId = assignedFilter;
+  }
+
   if (query) {
     whereClause.OR = [
       { name: { contains: query, mode: "insensitive" } },
@@ -24,13 +43,9 @@ export default async function AdminLeadsPage({
       { serviceInterest: { contains: query, mode: "insensitive" } },
     ];
   }
+
   if (statusFilter) {
     whereClause.status = statusFilter;
-  }
-  if (assignedFilter === "unassigned") {
-    whereClause.assignedToId = null;
-  } else if (assignedFilter) {
-    whereClause.assignedToId = assignedFilter;
   }
 
   const leads = await prisma.lead.findMany({
@@ -50,23 +65,33 @@ export default async function AdminLeadsPage({
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold font-outfit text-slate-900">Lead Management</h2>
-          <p className="text-slate-500 mt-1">View, assign, and manage all student enquiries.</p>
+          <h2 className="text-3xl font-bold font-outfit text-slate-900">
+            {user.role === "COUNSELLOR" ? "My Assigned Leads" : "Lead Management"}
+          </h2>
+          <p className="text-slate-500 mt-1">
+            {user.role === "COUNSELLOR" 
+              ? `Welcome ${user.name}. Here are the student leads assigned to you by the administrator.` 
+              : "View, assign, and manage all student enquiries across the consultancy."}
+          </p>
         </div>
-        <div className="flex gap-2 flex-shrink-0">
-          <Button variant="outline" size="sm" asChild>
-            <a href="/api/admin/leads/export?scope=today" download>
-              <Download className="w-4 h-4 mr-2" />
-              Export Today
-            </a>
-          </Button>
-          <Button variant="default" size="sm" asChild>
-            <a href="/api/admin/leads/export?scope=all" download>
-              <Download className="w-4 h-4 mr-2" />
-              Export All Time
-            </a>
-          </Button>
-        </div>
+
+        {/* Super Admin ONLY: Excel Export */}
+        {isAdmin && (
+          <div className="flex gap-2 flex-shrink-0">
+            <Button variant="outline" size="sm" asChild>
+              <a href="/api/admin/leads/export?scope=today" download>
+                <Download className="w-4 h-4 mr-2" />
+                Export Today
+              </a>
+            </Button>
+            <Button variant="default" size="sm" asChild>
+              <a href="/api/admin/leads/export?scope=all" download>
+                <Download className="w-4 h-4 mr-2" />
+                Export All Time
+              </a>
+            </Button>
+          </div>
+        )}
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow-sm border border-slate-200 flex flex-wrap gap-4 items-center">
@@ -100,9 +125,9 @@ export default async function AdminLeadsPage({
               <tr>
                 <th className="px-6 py-4">Name / Contact</th>
                 <th className="px-6 py-4">Service Interest</th>
-                <th className="px-6 py-4">Assigned Counsellor</th>
+                {isAdmin && <th className="px-6 py-4">Assigned Counsellor</th>}
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Notes</th>
+                <th className="px-6 py-4">Call Notes</th>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -120,15 +145,17 @@ export default async function AdminLeadsPage({
                       {lead.serviceInterest || "General"}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    {lead.assignedTo ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
-                        <UserCheck className="w-3 h-3" /> {lead.assignedTo.name}
-                      </span>
-                    ) : (
-                      <span className="text-xs text-slate-400 italic">Unassigned</span>
-                    )}
-                  </td>
+                  {isAdmin && (
+                    <td className="px-6 py-4">
+                      {lead.assignedTo ? (
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                          <UserCheck className="w-3 h-3" /> {lead.assignedTo.name}
+                        </span>
+                      ) : (
+                        <span className="text-xs text-slate-400 italic">Unassigned</span>
+                      )}
+                    </td>
+                  )}
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
                       ${lead.status === 'NEW' ? 'bg-blue-100 text-blue-700' : ''}
@@ -163,8 +190,14 @@ export default async function AdminLeadsPage({
               ))}
               {leads.length === 0 && (
                 <tr>
-                  <td colSpan={7} className="px-6 py-12 text-center text-slate-500">
-                    No leads found matching your criteria.
+                  <td colSpan={isAdmin ? 7 : 6} className="px-6 py-12 text-center text-slate-500">
+                    <AlertCircle className="w-8 h-8 mx-auto text-slate-300 mb-2" />
+                    <p className="font-medium text-slate-700">
+                      {user.role === "COUNSELLOR" ? "No leads currently assigned to you" : "No leads found matching your criteria"}
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      {user.role === "COUNSELLOR" ? "When the admin assigns leads to you, they will appear here." : "Inbound student enquiries will appear in this table."}
+                    </p>
                   </td>
                 </tr>
               )}

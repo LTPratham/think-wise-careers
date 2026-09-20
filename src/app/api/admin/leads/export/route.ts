@@ -1,13 +1,13 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireEditor } from "@/lib/rbac";
+import { requireAdmin } from "@/lib/rbac";
 import * as XLSX from "xlsx";
 
 export async function GET(req: Request) {
-  // Auth check
-  const auth = await requireEditor();
+  // Strict Admin-only check to prevent student database theft
+  const auth = await requireAdmin();
   if (auth instanceof NextResponse) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Unauthorized: Admin access required to export student data" }, { status: 403 });
   }
 
   const { searchParams } = new URL(req.url);
