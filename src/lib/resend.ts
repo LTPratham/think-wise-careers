@@ -210,6 +210,7 @@ export async function sendConsultationBookingNotificationEmail(bookingData: {
   targetDegree?: string;
   notes?: string;
   bookingId: string;
+  counsellorName?: string;
 }) {
   if (!resend) {
     console.warn(`[Resend] Missing Master API key (RESEND_API_KEY_ADMISSIONS)`);
@@ -232,11 +233,11 @@ export async function sendConsultationBookingNotificationEmail(bookingData: {
   });
 
   try {
-    // 1. Send Alert to Team
+    // 1. Send Alert to Team / Admin
     await resend.emails.send({
       from: 'Admissions <admissions@thinkwisecareers.com>',
       to: 'admissions@thinkwisecareers.com',
-      subject: `🗓️ New Consultation Booked: ${bookingData.name} (${formattedDate} @ ${bookingData.timeSlot})`,
+      subject: `🗓️ Consultation Scheduled: ${bookingData.name} (${formattedDate} @ ${bookingData.timeSlot})`,
       html: `
         <h2>New 1-on-1 Consultation Scheduled!</h2>
         <p><strong>Student Name:</strong> ${bookingData.name}</p>
@@ -245,6 +246,7 @@ export async function sendConsultationBookingNotificationEmail(bookingData: {
         <p><strong>Date:</strong> ${formattedDate}</p>
         <p><strong>Time Slot:</strong> ${bookingData.timeSlot}</p>
         <p><strong>Consultation Mode:</strong> ${modeText}</p>
+        <p><strong>Assigned Counsellor / Scheduled By:</strong> ${bookingData.counsellorName || 'Website Booking / Unassigned'}</p>
         <p><strong>Service / Area of Interest:</strong> ${bookingData.serviceInterest || 'General Guidance'}</p>
         <p><strong>Target Country:</strong> ${bookingData.targetCountry || 'Undecided'}</p>
         <p><strong>Target Degree:</strong> ${bookingData.targetDegree || 'N/A'}</p>
@@ -254,8 +256,8 @@ export async function sendConsultationBookingNotificationEmail(bookingData: {
       `,
     });
 
-    // 2. Send Confirmation to Student
-    if (bookingData.email) {
+    // 2. Send Confirmation to Student (if real email provided)
+    if (bookingData.email && bookingData.email !== "no-email@example.com" && !bookingData.email.includes("@example.com")) {
       await resend.emails.send({
         from: 'Think Wise Careers <admissions@thinkwisecareers.com>',
         to: bookingData.email,

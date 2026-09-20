@@ -68,7 +68,7 @@ export async function POST(
       },
     });
 
-    // 4. Send Confirmation Email via Resend
+    // 4. Send Confirmation Email via Resend to Admin & Student
     await sendConsultationBookingNotificationEmail({
       name: lead.name,
       email: lead.email,
@@ -79,6 +79,7 @@ export async function POST(
       serviceInterest: lead.serviceInterest || undefined,
       notes: notes || undefined,
       bookingId: booking.id,
+      counsellorName: auth.user.name,
     });
 
     return NextResponse.json({ success: true, booking });
