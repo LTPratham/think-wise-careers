@@ -346,6 +346,8 @@ model Lead {
   status            LeadStatus        @default(NEW)
   qualificationFlag QualificationFlag @default(UNVERIFIED)
   duplicateFlag     Boolean           @default(false)
+  disposition       String?
+  documents         Json              @default("[]")
   utmSource         String?
   utmMedium         String?
   utmCampaign       String?
@@ -376,6 +378,7 @@ model ConsultationBooking {
   date            DateTime
   timeSlot        String
   mode            BookingMode   @default(PHONE_CALL)
+  meetingLink     String?
   serviceInterest String?
   targetCountry   String?
   targetDegree    String?

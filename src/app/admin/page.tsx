@@ -3,9 +3,24 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, Globe, BookOpen, Calendar, Clock, Phone, ArrowRight, Shield } from "lucide-react";
 import Link from "next/link";
 import { QuickAccessQR } from "@/components/admin/QuickAccessQR";
+import { CounsellorScoreboard } from "@/components/admin/CounsellorScoreboard";
 import { Button } from "@/components/ui/button";
+import { requireTeamMember } from "@/lib/rbac";
+import { redirect } from "next/navigation";
 
 export default async function AdminDashboardPage() {
+  const auth = await requireTeamMember();
+  if (auth instanceof Response) {
+    redirect("/login");
+  }
+
+  const { user } = auth;
+
+  // If logged in as Counsellor, automatically navigate them straight to their Calls & Meetings calendar
+  if (user.role === "COUNSELLOR") {
+    redirect("/admin/meetings");
+  }
+
   const [leadCount, bookingCount, upcomingMeetingsCount, teamCount] = await Promise.all([
     prisma.lead.count(),
     prisma.consultationBooking.count(),
@@ -18,7 +33,7 @@ export default async function AdminDashboardPage() {
     prisma.user.count({ where: { status: "ACTIVE" } }),
   ]);
 
-  const [recentLeads, recentBookings] = await Promise.all([
+  const [recentLeads, recentBookings, counsellors] = await Promise.all([
     prisma.lead.findMany({
       take: 5,
       orderBy: { createdAt: "desc" },
@@ -33,7 +48,37 @@ export default async function AdminDashboardPage() {
         assignedTo: { select: { name: true } },
       },
     }),
+    prisma.user.findMany({
+      where: { role: "COUNSELLOR", status: "ACTIVE" },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        _count: {
+          select: {
+            assignedLeads: true,
+            assignedBookings: true,
+          },
+        },
+        assignedBookings: {
+          where: { status: "COMPLETED" },
+          select: { id: true },
+        },
+      },
+      orderBy: { name: "asc" },
+    }),
   ]);
+
+  const formattedCounsellors = counsellors.map((c) => ({
+    id: c.id,
+    name: c.name,
+    email: c.email,
+    role: c.role,
+    assignedLeadsCount: c._count.assignedLeads,
+    assignedBookingsCount: c._count.assignedBookings,
+    completedBookingsCount: c.assignedBookings.length,
+  }));
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thinkwisecareers.com";
 
@@ -105,7 +150,10 @@ export default async function AdminDashboardPage() {
         </Card>
       </div>
 
-      {/* Main Grid: Recent Meetings, Recent Leads & QR Connect Widget */}
+      {/* Counsellor Team Performance Scoreboard */}
+      <CounsellorScoreboard counsellors={formattedCounsellors} />
+
+      {/* Main Grid: Recent Meetings & QR Connect Widget */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         
         {/* Recent Scheduled Consultations */}

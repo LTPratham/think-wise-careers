@@ -210,6 +210,13 @@ export default async function AdminMeetingsPage({
 
                 {/* Direct Action Buttons */}
                 <div className="flex flex-wrap items-center gap-2">
+                  {b.mode === "GOOGLE_MEET" && (
+                    <Button size="sm" asChild className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs h-8">
+                      <a href={b.meetingLink || "https://meet.google.com/new"} target="_blank" rel="noopener noreferrer">
+                        <Video className="w-3.5 h-3.5 mr-1" /> Join Google Meet
+                      </a>
+                    </Button>
+                  )}
                   <Button size="sm" asChild className="bg-[#25D366] hover:bg-[#1ebd5a] text-white text-xs h-8">
                     <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
                       💬 WhatsApp

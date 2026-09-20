@@ -2,10 +2,13 @@ import { prisma } from "@/lib/prisma";
 import { notFound, redirect } from "next/navigation";
 import { format } from "date-fns";
 import Link from "next/link";
-import { ChevronLeft, Mail, Phone, Calendar, AlertTriangle, UserCheck, MessageSquare } from "lucide-react";
+import { ChevronLeft, Mail, Phone, Calendar, AlertTriangle, UserCheck, MessageSquare, FileCheck } from "lucide-react";
 import { LeadStatusSelect } from "@/components/admin/LeadStatusSelect";
 import { LeadCounsellorSelect } from "@/components/admin/LeadCounsellorSelect";
 import { LeadNotesSection } from "@/components/admin/LeadNotesSection";
+import { CallDispositionBar } from "@/components/admin/CallDispositionBar";
+import { QuickScheduleModal } from "@/components/admin/QuickScheduleModal";
+import { StudentDocumentChecklist } from "@/components/admin/StudentDocumentChecklist";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { requireTeamMember } from "@/lib/rbac";
@@ -60,7 +63,9 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="space-y-6 max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
+      
+      {/* Top Bar with 1-Click Schedule, Call & WhatsApp */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center space-x-4">
           <Link href="/admin/leads" className="p-2 hover:bg-slate-200 rounded-full transition-colors">
             <ChevronLeft className="w-5 h-5 text-slate-600" />
@@ -71,19 +76,31 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           </div>
         </div>
 
-        <div className="flex gap-2">
-          <Button size="sm" asChild className="bg-[#25D366] hover:bg-[#1ebd5a] text-white">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* 1-Click Schedule Meeting Modal */}
+          <QuickScheduleModal
+            leadId={lead.id}
+            leadName={lead.name}
+            leadPhone={lead.phone}
+            leadEmail={lead.email}
+          />
+
+          <Button size="sm" asChild className="bg-[#25D366] hover:bg-[#1ebd5a] text-white text-xs h-8">
             <a href={whatsappUrl} target="_blank" rel="noopener noreferrer">
               💬 WhatsApp
             </a>
           </Button>
-          <Button size="sm" variant="outline" asChild>
+
+          <Button size="sm" variant="outline" asChild className="text-xs h-8">
             <a href={`tel:${lead.phone}`}>
               📞 Call Student
             </a>
           </Button>
         </div>
       </div>
+
+      {/* 1-Click Call Outcome Dispositions */}
+      <CallDispositionBar leadId={lead.id} currentDisposition={lead.disposition} />
 
       <div className="grid md:grid-cols-3 gap-6">
         
@@ -151,7 +168,7 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
           </Card>
         </div>
 
-        {/* Right Column: Call Notes & Touchpoint History */}
+        {/* Right Column: Call Notes, Document Readiness & Timeline */}
         <div className="md:col-span-2 space-y-6">
           
           {/* Call Notes Logger */}
@@ -163,6 +180,18 @@ export default async function LeadDetailPage({ params }: { params: Promise<{ id:
             </CardHeader>
             <CardContent className="pt-5">
               <LeadNotesSection leadId={lead.id} initialNotes={lead.notes} />
+            </CardContent>
+          </Card>
+
+          {/* Student Document Checklist */}
+          <Card className="border-slate-200 shadow-sm">
+            <CardHeader className="bg-slate-50 border-b border-slate-100">
+              <CardTitle className="text-base flex items-center gap-2 text-slate-900 font-outfit">
+                <FileCheck className="w-4 h-4 text-indigo-600" /> Student Application Documents Checklist
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-5">
+              <StudentDocumentChecklist leadId={lead.id} initialDocuments={lead.documents} />
             </CardContent>
           </Card>
 
