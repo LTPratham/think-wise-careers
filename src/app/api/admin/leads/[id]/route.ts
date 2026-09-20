@@ -8,29 +8,30 @@ export async function PATCH(req: Request, context: { params: Promise<{ id: strin
     const auth = await requireEditor();
     if (auth instanceof NextResponse) return auth;
 
+    const { id } = await context.params;
     const body = await req.json();
-    const { status } = body;
+    const { status, assignedToId } = body;
 
-    if (!status) {
-      return NextResponse.json({ error: "Status is required" }, { status: 400 });
-    }
+    const data: any = {};
+    if (status) data.status = status;
+    if (assignedToId !== undefined) data.assignedToId = assignedToId || null;
 
     const lead = await prisma.lead.update({
-      where: { id: params.id },
-      data: { status },
+      where: { id },
+      data,
     });
 
     await writeAuditLog(
       auth.user.id,
-      "UPDATE_STATUS",
+      "UPDATE_LEAD",
       "Lead",
       lead.id,
-      `Updated lead status to ${status}`
+      `Updated lead: ${JSON.stringify(data)}`
     );
 
     return NextResponse.json(lead);
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error updating lead:", error);
-    return NextResponse.json({ error: "Failed to update lead" }, { status: 500 });
+    return NextResponse.json({ error: error.message || "Failed to update lead" }, { status: 500 });
   }
 }

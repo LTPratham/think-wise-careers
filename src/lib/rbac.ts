@@ -2,18 +2,11 @@ import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import { authOptions } from "@/lib/auth";
 
-type Role = "ADMIN" | "EDITOR";
+type Role = "ADMIN" | "EDITOR" | "COUNSELLOR";
 
 /**
  * Get the current authenticated session and validate role.
  * Returns the session if authorized, or a NextResponse error.
- *
- * Usage in API routes:
- * ```ts
- * const authResult = await requireRole("ADMIN");
- * if (authResult instanceof NextResponse) return authResult;
- * const { user } = authResult;
- * ```
  */
 export async function requireRole(...allowedRoles: Role[]) {
   const session = await getServerSession(authOptions);
@@ -45,6 +38,13 @@ export async function requireRole(...allowedRoles: Role[]) {
 }
 
 /**
+ * Require any logged-in team member (Counsellor, Editor, or Admin)
+ */
+export async function requireTeamMember() {
+  return requireRole("COUNSELLOR", "EDITOR", "ADMIN");
+}
+
+/**
  * Require at least Editor role (Editor or Admin)
  */
 export async function requireEditor() {
@@ -57,3 +57,4 @@ export async function requireEditor() {
 export async function requireAdmin() {
   return requireRole("ADMIN");
 }
+

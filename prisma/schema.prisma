@@ -13,8 +13,23 @@ datasource db {
 // ─── Enums ───────────────────────────────────────────────
 
 enum UserRole {
+  COUNSELLOR
   EDITOR
   ADMIN
+}
+
+enum BookingMode {
+  PHONE_CALL
+  GOOGLE_MEET
+  IN_PERSON_JAIPUR
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+  NO_SHOW
 }
 
 enum UserStatus {
@@ -115,16 +130,19 @@ model User {
   name         String
   email        String     @unique
   passwordHash String
-  role         UserRole   @default(EDITOR)
+  role         UserRole   @default(COUNSELLOR)
   status       UserStatus @default(ACTIVE)
   lastLoginAt  DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  blogPosts      BlogPost[]
-  auditLogEntries AuditLogEntry[]
-  redirectRules  RedirectRule[]
+  blogPosts        BlogPost[]
+  auditLogEntries  AuditLogEntry[]
+  redirectRules    RedirectRule[]
+  assignedLeads    Lead[]
+  assignedBookings ConsultationBooking[]
+  leadNotes        LeadNote[]
 
   @@map("users")
 }
@@ -332,15 +350,66 @@ model Lead {
   utmMedium         String?
   utmCampaign       String?
 
-  createdAt       DateTime @default(now())
-  lastActivityAt  DateTime @default(now())
+  assignedToId      String?
+  assignedTo        User?             @relation(fields: [assignedToId], references: [id])
+
+  createdAt         DateTime @default(now())
+  lastActivityAt    DateTime @default(now())
   retentionReviewAt DateTime?
 
-  touchpoints LeadTouchpoint[]
+  touchpoints       LeadTouchpoint[]
+  notes             LeadNote[]
+  bookings          ConsultationBooking[]
 
   @@index([phone])
   @@index([email])
+  @@index([assignedToId])
   @@map("leads")
+}
+
+/// Consultation and meeting bookings made by students
+model ConsultationBooking {
+  id              String        @id @default(uuid())
+  name            String
+  email           String
+  phone           String
+  date            DateTime
+  timeSlot        String
+  mode            BookingMode   @default(PHONE_CALL)
+  serviceInterest String?
+  targetCountry   String?
+  targetDegree    String?
+  notes           String?       @db.Text
+  status          BookingStatus @default(PENDING)
+
+  leadId          String?
+  lead            Lead?         @relation(fields: [leadId], references: [id], onDelete: SetNull)
+
+  assignedToId    String?
+  assignedTo      User?         @relation(fields: [assignedToId], references: [id])
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([date])
+  @@index([email])
+  @@index([phone])
+  @@map("consultation_bookings")
+}
+
+/// Internal notes and call summary added by counsellors
+model LeadNote {
+  id        String   @id @default(uuid())
+  leadId    String
+  authorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  lead   Lead @relation(fields: [leadId], references: [id], onDelete: Cascade)
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  @@index([leadId])
+  @@map("lead_notes")
 }
 
 /// Lead interaction touchpoints (appended on duplicate submissions)

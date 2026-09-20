@@ -101,8 +101,8 @@ export async function sendLeadNotificationEmail(leadData: any) {
                           </tr>
                           <tr>
                             <td align="center">
-                              <a href="${siteUrl}/contact" style="display: inline-block; background-color: #1e3a8a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 15px; text-align: center; width: 80%; box-sizing: border-box;">
-                                📅 Schedule a Meeting / Call
+                              <a href="${siteUrl}/schedule" style="display: inline-block; background-color: #1e3a8a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 15px; text-align: center; width: 80%; box-sizing: border-box;">
+                                📅 Schedule a 1-on-1 Meeting / Call
                               </a>
                             </td>
                           </tr>
@@ -197,3 +197,120 @@ export async function sendPartnerNotificationEmail(partnerData: any) {
     console.error('[Resend Error]', error);
   }
 }
+
+export async function sendConsultationBookingNotificationEmail(bookingData: {
+  name: string;
+  email: string;
+  phone: string;
+  date: string;
+  timeSlot: string;
+  mode: string;
+  serviceInterest?: string;
+  targetCountry?: string;
+  targetDegree?: string;
+  notes?: string;
+  bookingId: string;
+}) {
+  if (!resend) {
+    console.warn(`[Resend] Missing Master API key (RESEND_API_KEY_ADMISSIONS)`);
+    return;
+  }
+
+  const modeDisplayNames: Record<string, string> = {
+    PHONE_CALL: "📞 Direct Phone Call",
+    GOOGLE_MEET: "💻 Online Video Meeting (Google Meet)",
+    IN_PERSON_JAIPUR: "🏢 In-Person Visit (Jaipur Office)",
+  };
+
+  const modeText = modeDisplayNames[bookingData.mode] || bookingData.mode;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thinkwisecareers.com";
+  const formattedDate = new Date(bookingData.date).toLocaleDateString("en-IN", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+
+  try {
+    // 1. Send Alert to Team
+    await resend.emails.send({
+      from: 'Admissions <admissions@thinkwisecareers.com>',
+      to: 'admissions@thinkwisecareers.com',
+      subject: `🗓️ New Consultation Booked: ${bookingData.name} (${formattedDate} @ ${bookingData.timeSlot})`,
+      html: `
+        <h2>New 1-on-1 Consultation Scheduled!</h2>
+        <p><strong>Student Name:</strong> ${bookingData.name}</p>
+        <p><strong>Phone:</strong> ${bookingData.phone}</p>
+        <p><strong>Email:</strong> ${bookingData.email}</p>
+        <p><strong>Date:</strong> ${formattedDate}</p>
+        <p><strong>Time Slot:</strong> ${bookingData.timeSlot}</p>
+        <p><strong>Consultation Mode:</strong> ${modeText}</p>
+        <p><strong>Service / Area of Interest:</strong> ${bookingData.serviceInterest || 'General Guidance'}</p>
+        <p><strong>Target Country:</strong> ${bookingData.targetCountry || 'Undecided'}</p>
+        <p><strong>Target Degree:</strong> ${bookingData.targetDegree || 'N/A'}</p>
+        <p><strong>Student Brief / Notes:</strong> ${bookingData.notes || 'None provided'}</p>
+        <br/>
+        <p>👉 <a href="${siteUrl}/admin/meetings">View all scheduled meetings in CRM Dashboard</a></p>
+      `,
+    });
+
+    // 2. Send Confirmation to Student
+    if (bookingData.email) {
+      await resend.emails.send({
+        from: 'Think Wise Careers <admissions@thinkwisecareers.com>',
+        to: bookingData.email,
+        subject: `Confirmed: Your 1-on-1 Consultation on ${formattedDate}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+          <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f8fafc; color: #1e293b; padding: 24px;">
+            <table width="100%" style="max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0;">
+              <tr>
+                <td style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 32px; text-align: center; color: #ffffff;">
+                  <h1 style="margin: 0; font-size: 24px;">Consultation Confirmed!</h1>
+                  <p style="margin: 8px 0 0; color: #bfdbfe; font-size: 14px;">Think Wise Careers · Senior Academic Advisory</p>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 32px;">
+                  <p style="font-size: 16px; line-height: 1.5; margin: 0 0 16px;">Hello <strong>${bookingData.name}</strong>,</p>
+                  <p style="font-size: 15px; line-height: 1.6; color: #334155; margin: 0 0 24px;">
+                    Your dedicated 1-on-1 consultation session with our senior counsellor is confirmed. We look forward to guiding you through your global education goals.
+                  </p>
+
+                  <div style="background-color: #f1f5f9; border-radius: 12px; padding: 20px; margin-bottom: 24px;">
+                    <h3 style="margin: 0 0 12px; font-size: 16px; color: #0f172a;">📅 Appointment Details</h3>
+                    <p style="margin: 0 0 8px; font-size: 14px;"><strong>Date:</strong> ${formattedDate}</p>
+                    <p style="margin: 0 0 8px; font-size: 14px;"><strong>Time Slot:</strong> ${bookingData.timeSlot} (IST)</p>
+                    <p style="margin: 0 0 8px; font-size: 14px;"><strong>Mode:</strong> ${modeText}</p>
+                    <p style="margin: 0; font-size: 14px;"><strong>Area of Focus:</strong> ${bookingData.serviceInterest || 'Academic Guidance'}</p>
+                  </div>
+
+                  <p style="font-size: 14px; line-height: 1.6; color: #475569; margin: 0 0 24px;">
+                    Our senior counsellor will connect with you via ${modeText} at your scheduled time. If you chose phone, we will call you directly on <strong>${bookingData.phone}</strong>.
+                  </p>
+
+                  <div style="text-align: center; margin-bottom: 24px;">
+                    <a href="https://wa.me/917300036507?text=Hi%20Think%20Wise%20Careers,%20I%20have%20a%20confirmed%20consultation%20booked%20for%20${encodeURIComponent(formattedDate)}." style="display: inline-block; background-color: #25D366; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 8px; font-weight: 600; font-size: 15px;">
+                      💬 Need to Reschedule? Message on WhatsApp
+                    </a>
+                  </div>
+
+                  <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                  <p style="font-size: 12px; color: #94a3b8; text-align: center; margin: 0;">
+                    Think Wise Careers · Jaipur, Rajasthan · Helpline: +91 73000 36507 · <a href="${siteUrl}" style="color: #3b82f6;">thinkwisecareers.com</a>
+                  </p>
+                </td>
+              </tr>
+            </table>
+          </body>
+          </html>
+        `,
+      });
+      console.log(`[Resend] Consultation confirmation email sent to ${bookingData.email}`);
+    }
+  } catch (error) {
+    console.error('[Resend Consultation Booking Error]:', error);
+  }
+}
+

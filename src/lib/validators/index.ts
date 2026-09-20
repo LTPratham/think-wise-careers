@@ -29,6 +29,30 @@ export const PartnerEnquirySchema = z.object({
   message: z.string().min(10, "Please provide more details in your message"),
 });
 
+export const ConsultationBookingSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Please provide a valid email address"),
+  phone: z.string().min(10, "Valid phone number required"),
+  date: z.string().min(1, "Please select a date"),
+  timeSlot: z.string().min(1, "Please select a time slot"),
+  mode: z.enum(["PHONE_CALL", "GOOGLE_MEET", "IN_PERSON_JAIPUR"]),
+  serviceInterest: z.string().min(1, "Please select your primary interest"),
+  targetCountry: z.string().optional(),
+  targetDegree: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+export const LeadNoteSchema = z.object({
+  content: z.string().min(2, "Note cannot be empty"),
+});
+
+export const TeamUserSchema = z.object({
+  name: z.string().min(2, "Name is required"),
+  email: z.string().email("Valid email required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  role: z.enum(["COUNSELLOR", "EDITOR", "ADMIN"]),
+});
+
 // Admin CMS Schemas
 
 export const UniversitySchema = z.object({

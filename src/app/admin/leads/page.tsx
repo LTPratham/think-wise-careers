@@ -1,17 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import Link from "next/link";
 import { format } from "date-fns";
-import { Search, Filter, Eye, Download } from "lucide-react";
+import { Search, Filter, Eye, Download, UserCheck, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
 export default async function AdminLeadsPage({
   searchParams,
 }: {
-  searchParams: { q?: string; status?: string };
+  searchParams: Promise<{ q?: string; status?: string; assigned?: string }>;
 }) {
-  const query = searchParams.q || "";
-  const statusFilter = searchParams.status || "";
+  const params = await searchParams;
+  const query = params.q || "";
+  const statusFilter = params.status || "";
+  const assignedFilter = params.assigned || "";
 
   const whereClause: any = {};
   if (query) {
@@ -19,10 +21,16 @@ export default async function AdminLeadsPage({
       { name: { contains: query, mode: "insensitive" } },
       { email: { contains: query, mode: "insensitive" } },
       { phone: { contains: query, mode: "insensitive" } },
+      { serviceInterest: { contains: query, mode: "insensitive" } },
     ];
   }
   if (statusFilter) {
     whereClause.status = statusFilter;
+  }
+  if (assignedFilter === "unassigned") {
+    whereClause.assignedToId = null;
+  } else if (assignedFilter) {
+    whereClause.assignedToId = assignedFilter;
   }
 
   const leads = await prisma.lead.findMany({
@@ -30,7 +38,10 @@ export default async function AdminLeadsPage({
     orderBy: { createdAt: "desc" },
     include: {
       _count: {
-        select: { touchpoints: true },
+        select: { touchpoints: true, notes: true },
+      },
+      assignedTo: {
+        select: { id: true, name: true, role: true },
       },
     },
   });
@@ -40,7 +51,7 @@ export default async function AdminLeadsPage({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h2 className="text-3xl font-bold font-outfit text-slate-900">Lead Management</h2>
-          <p className="text-slate-500 mt-1">View and manage all student enquiries.</p>
+          <p className="text-slate-500 mt-1">View, assign, and manage all student enquiries.</p>
         </div>
         <div className="flex gap-2 flex-shrink-0">
           <Button variant="outline" size="sm" asChild>
@@ -66,15 +77,18 @@ export default async function AdminLeadsPage({
           </div>
           <Button type="submit" variant="secondary">Search</Button>
         </form>
-        <div className="flex gap-2">
-          <Button variant={statusFilter === "" ? "default" : "outline"} asChild>
+        <div className="flex flex-wrap gap-2">
+          <Button variant={statusFilter === "" ? "default" : "outline"} size="sm" asChild>
             <Link href="/admin/leads">All</Link>
           </Button>
-          <Button variant={statusFilter === "NEW" ? "default" : "outline"} asChild>
+          <Button variant={statusFilter === "NEW" ? "default" : "outline"} size="sm" asChild>
             <Link href="/admin/leads?status=NEW">New</Link>
           </Button>
-          <Button variant={statusFilter === "CONTACTED" ? "default" : "outline"} asChild>
+          <Button variant={statusFilter === "CONTACTED" ? "default" : "outline"} size="sm" asChild>
             <Link href="/admin/leads?status=CONTACTED">Contacted</Link>
+          </Button>
+          <Button variant={statusFilter === "CONSULTATION_BOOKED" ? "default" : "outline"} size="sm" asChild>
+            <Link href="/admin/leads?status=CONSULTATION_BOOKED">Booked</Link>
           </Button>
         </div>
       </div>
@@ -86,9 +100,9 @@ export default async function AdminLeadsPage({
               <tr>
                 <th className="px-6 py-4">Name / Contact</th>
                 <th className="px-6 py-4">Service Interest</th>
+                <th className="px-6 py-4">Assigned Counsellor</th>
                 <th className="px-6 py-4">Status</th>
-                <th className="px-6 py-4">Qualification</th>
-                <th className="px-6 py-4">Touchpoints</th>
+                <th className="px-6 py-4">Notes</th>
                 <th className="px-6 py-4">Date</th>
                 <th className="px-6 py-4 text-right">Actions</th>
               </tr>
@@ -98,13 +112,22 @@ export default async function AdminLeadsPage({
                 <tr key={lead.id} className="hover:bg-slate-50 transition-colors">
                   <td className="px-6 py-4">
                     <div className="font-semibold text-slate-900">{lead.name}</div>
-                    <div className="text-slate-500 mt-0.5">{lead.email}</div>
-                    <div className="text-slate-500">{lead.phone}</div>
+                    <div className="text-slate-500 text-xs mt-0.5">{lead.email}</div>
+                    <div className="text-slate-500 text-xs">{lead.phone}</div>
                   </td>
                   <td className="px-6 py-4">
                     <span className="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium bg-slate-100 text-slate-700">
                       {lead.serviceInterest || "General"}
                     </span>
+                  </td>
+                  <td className="px-6 py-4">
+                    {lead.assignedTo ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-purple-50 text-purple-700 border border-purple-200">
+                        <UserCheck className="w-3 h-3" /> {lead.assignedTo.name}
+                      </span>
+                    ) : (
+                      <span className="text-xs text-slate-400 italic">Unassigned</span>
+                    )}
                   </td>
                   <td className="px-6 py-4">
                     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold
@@ -117,28 +140,22 @@ export default async function AdminLeadsPage({
                       {lead.status.replace("_", " ")}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium
-                      ${lead.qualificationFlag === 'QUALIFIED' ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-slate-100 text-slate-600 border border-slate-200'}
-                    `}>
-                      {lead.qualificationFlag}
-                    </span>
-                    {lead.isDuplicate && (
-                      <span className="ml-2 inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200">
-                        Returning
+                  <td className="px-6 py-4 text-slate-600">
+                    {lead._count.notes > 0 ? (
+                      <span className="inline-flex items-center gap-1 text-xs font-medium text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                        <MessageSquare className="w-3 h-3 text-slate-400" /> {lead._count.notes}
                       </span>
+                    ) : (
+                      <span className="text-xs text-slate-400">—</span>
                     )}
                   </td>
-                  <td className="px-6 py-4 text-slate-600">
-                    {lead._count.touchpoints}
-                  </td>
-                  <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
+                  <td className="px-6 py-4 text-slate-500 whitespace-nowrap text-xs">
                     {format(new Date(lead.createdAt), "MMM d, yyyy")}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <Button variant="ghost" size="sm" asChild>
                       <Link href={`/admin/leads/${lead.id}`}>
-                        <Eye className="w-4 h-4 mr-2" /> View
+                        <Eye className="w-4 h-4 mr-1.5" /> View
                       </Link>
                     </Button>
                   </td>

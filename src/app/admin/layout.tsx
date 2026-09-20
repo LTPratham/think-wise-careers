@@ -1,8 +1,8 @@
 import { NextAuthProvider } from "@/providers/NextAuthProvider";
-import { requireEditor } from "@/lib/rbac";
+import { requireTeamMember } from "@/lib/rbac";
 import { NextResponse } from "next/server";
 import Link from "next/link";
-import { LayoutDashboard, Users, Map, Globe, Shield, BookOpen, Settings } from "lucide-react";
+import { LayoutDashboard, Users, Calendar, Map, Globe, Shield, BookOpen, Settings, UserPlus } from "lucide-react";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({
@@ -10,7 +10,7 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const auth = await requireEditor();
+  const auth = await requireTeamMember();
   if (auth instanceof NextResponse) {
     redirect("/login");
   }
@@ -31,9 +31,23 @@ export default async function AdminLayout({
               <Link href="/admin" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
                 <LayoutDashboard className="w-5 h-5 mr-3" /> Dashboard
               </Link>
+              <Link href="/admin/meetings" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
+                <Calendar className="w-5 h-5 mr-3" /> Meetings & Calls
+              </Link>
               <Link href="/admin/leads" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
                 <Users className="w-5 h-5 mr-3" /> Leads & CRM
               </Link>
+
+              {user.role === "ADMIN" && (
+                <Link href="/admin/team" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
+                  <UserPlus className="w-5 h-5 mr-3" /> Team & Staff
+                </Link>
+              )}
+
+              <div className="pt-4 pb-2 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Website Content
+              </div>
+
               <Link href="/admin/countries" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
                 <Globe className="w-5 h-5 mr-3" /> Study Abroad
               </Link>
@@ -49,6 +63,7 @@ export default async function AdminLayout({
               <Link href="/admin/blog" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors">
                 <BookOpen className="w-5 h-5 mr-3" /> Blog CMS
               </Link>
+
               {user.role === "ADMIN" && (
                 <Link href="/admin/settings" className="flex items-center px-4 py-3 text-sm font-medium rounded-lg hover:bg-slate-800 hover:text-white transition-colors mt-8">
                   <Settings className="w-5 h-5 mr-3" /> Settings (Admin)

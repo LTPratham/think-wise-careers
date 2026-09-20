@@ -20,6 +20,13 @@
 - [x] Partner enquiry auto-reply emails
 - [x] Fixed RESEND_API_KEY_ADMISSIONS missing from .env (emails were silently failing)
 - [x] Excel export for Admin: "Export All Time" and "Export Today" buttons on Leads page
+- [x] Dedicated unlisted Consultation Booking Scheduler (`/schedule`) with interactive date/slot selection & mode picker
+- [x] Automated meeting confirmation emails with calendar invites & WhatsApp rescheduling
+- [x] Multi-user Team & Staff Management in CRM (`/admin/team`)
+- [x] 1-Click Lead & Meeting assignment to counsellors
+- [x] Counsellor Call Notes & Follow-Up history logger
+- [x] Admin Consultation Meetings Calendar (`/admin/meetings`)
+- [x] Quick CRM Shortcuts (`/crm`, `/portal`) & Mobile Connect QR Code widget
 
 ## In Progress (Phase 2: Sitemap Completion & Rich Content)
 - [ ] Enhancing Dynamic Routes Content Layouts (Cost, Eligibility, Process)
