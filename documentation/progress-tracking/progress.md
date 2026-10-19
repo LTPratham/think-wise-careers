@@ -1,48 +1,67 @@
-# Project Progress Tracking
+# Think Wise Careers — Progress Tracking
 
-## Last Updated: 2026-09-20
+## Last Updated: 2026-07-25
 
-## Completed (Phase 1: Foundation & Hubs)
-- [x] Initialized Next.js 14 project with TailwindCSS
-- [x] Prisma ORM setup with Neon PostgreSQL schema (Countries, MBBS, Services, Universities, Leads, FAQs)
-- [x] Premium Design System Implementation (Glassmorphism, Vibrant Gradients, Animations)
-- [x] Global Layout (Header, Footer navigation)
-- [x] Homepage (Hero, Study Abroad Hub, MBBS Hub, Services CTA)
-- [x] Study Abroad Hub Page (`/study-abroad`)
-- [x] MBBS Abroad Hub Page (`/mbbs-abroad`)
-- [x] Services Hub Page (`/services`)
-- [x] Dynamic Routes (`/[slug]`) mapping for Countries and Services
-- [x] Admin Dashboard Foundation (`/admin`)
-- [x] Fixed Next.js 15+ Async Params breaking changes on dynamic routes
-- [x] Implemented WebGL Morphing Particles (Three.js) & Page Transitions (Framer Motion)
-- [x] Resend email integration — internal alerts to admissions/counselling dept
-- [x] Student auto-reply emails on lead submission
-- [x] Partner enquiry auto-reply emails
-- [x] Fixed RESEND_API_KEY_ADMISSIONS missing from .env (emails were silently failing)
-- [x] Excel export for Admin: "Export All Time" and "Export Today" buttons on Leads page
-- [x] Dedicated unlisted Consultation Booking Scheduler (`/schedule`) with interactive date/slot selection & mode picker
-- [x] Automated meeting confirmation emails with calendar invites & WhatsApp rescheduling
-- [x] Multi-user Team & Staff Management in CRM (`/admin/team`)
-- [x] 1-Click Lead & Meeting assignment to counsellors
-- [x] Counsellor Call Notes & Follow-Up history logger
-- [x] 1-Click Meeting Scheduler Modal from Lead box (`QuickScheduleModal`)
-- [x] 1-Click Call Outcome Dispositions bar (`CallDispositionBar`) on Lead detail and Meeting cards
-- [x] Student Application Document Readiness Checklist (`StudentDocumentChecklist`)
-- [x] Google Meet video launcher integration in Meetings Calendar
-- [x] Super Admin Counsellor Performance Scoreboard (`CounsellorScoreboard`)
-- [x] Admin Consultation Meetings Calendar (`/admin/meetings`)
-- [x] Quick CRM Shortcuts (`/crm`, `/portal`) & Mobile Connect QR Code widget
+---
 
-## In Progress (Phase 2: Sitemap Completion & Rich Content)
-- [ ] Enhancing Dynamic Routes Content Layouts (Cost, Eligibility, Process)
-- [ ] Career Counselling Dedicated Page
-- [ ] About Us Page
-- [ ] Contact Us Page
-- [ ] Blog Infrastructure
+## Phase 0: Foundation
+- [ ] Repository setup (Next.js 14+ App Router, TypeScript, Tailwind)
+- [ ] Prisma schema with all 18 models
+- [ ] Database migration
+- [ ] Auth system (NextAuth.js / JWT)
+- [ ] RBAC middleware (Editor/Admin)
+- [ ] Seed script
 
-## Pending (Phase 3: Polish & Deployment)
-- [ ] SEO Optimization (Meta tags, sitemap.xml)
-- [ ] Client Testimonials Integration
-- [ ] Student Success Stories
-- [ ] Final Content Population
-- [ ] Production Deployment
+## Phase 1: Core Content Backbone
+- [ ] University shared-entity CRUD (API + admin UI)
+- [ ] Partner shared-entity CRUD (API + admin UI)
+- [ ] Country CRUD (API + admin editor) with University join
+- [ ] MBBSCountry CRUD (API + admin editor) with University join
+- [x] University shared-entity CRUD (API + admin UI)
+- [x] Partner shared-entity CRUD (API + admin UI)
+- [x] Country CRUD (API + admin editor) with University join
+- [x] MBBSCountry CRUD (API + admin editor) with University join
+- [x] Service, FAQ, Testimonial, BlogPost CRUD
+- [x] Redirect rule engine
+
+## Phase 2: Lead Capture Pipeline
+- [ ] Lead & LeadTouchpoint schema + normalization/dedup logic
+- [ ] Qualification logic (auto Qualified/Unverified)
+- [x] Create project scaffolding (Next.js, Tailwind, Shadcn)
+- [x] Implement database schema (Prisma)
+- [x] Create core backend libraries (Dedup, Qualification, Job Queue)
+- [x] Build core API routes (Lead capture, Partner enquiries)
+- [x] Build shared form components
+- [x] Create unit tests for dedup and qualification logic
+
+## Phase 3: Frontend Public Pages
+- [ ] Shared layout (Header, Footer, StickyMobileCTA, WhatsAppFloatButton)
+- [ ] Shared form components + FormSessionPersistence
+- [ ] HomePage
+- [ ] CountryPage + MBBSCountryPage dynamic routes
+- [ ] ServicesHub + ServiceDetail + Contact
+- [ ] Blog listing (model only, Phase 2 display)
+
+## Phase 4: Integrations & Compliance (Future)
+- [ ] GA4, Meta Pixel, Search Console
+- [ ] Email marketing integration
+- [ ] GDPR consent & deletion workflow
+- [ ] Audit log wiring
+
+## Phase 5: Hardening & Launch (Future)
+- [ ] WAF, rate limiting, input sanitization
+- [ ] Load testing
+- [ ] PageSpeed / Core Web Vitals audit
+- [ ] Accessibility audit (WCAG 2.1 AA)
+
+---
+
+## Completed Items
+- **2026-10-19**: Implemented Dual-Channel (Email & SMS/WhatsApp) OTP Verification for Contact Inquiries:
+  - Database schema updated with `OtpVerification` model and `Lead.phoneVerified`/`emailVerified`.
+  - Backend OTP module (`lib/otp.ts`) with bcrypt hashing, rate-limiting, and 5-min expiry.
+  - Branded email delivery via Resend (`sendOtpEmail`), OpenWA WhatsApp Gateway (`https://github.com/rmyndharis/OpenWA`), and SMS gateway handler (`lib/sms.ts`) with development mock fallback.
+  - API endpoints `/api/otp/send` and `/api/otp/verify`.
+  - Updated `/api/leads/enquiry` to validate tokens and automatically mark verified leads as `QUALIFIED`.
+  - Frontend `OtpVerificationStep` component and updated `QuickEnquiryForm` with dual-tab SMS/Email selection, 6-digit PIN input, countdown timer, and verified celebratory state.
+

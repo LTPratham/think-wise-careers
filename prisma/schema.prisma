@@ -348,6 +348,8 @@ model Lead {
   duplicateFlag     Boolean           @default(false)
   disposition       String?
   documents         Json              @default("[]")
+  phoneVerified     Boolean           @default(false)
+  emailVerified     Boolean           @default(false)
   utmSource         String?
   utmMedium         String?
   utmCampaign       String?
@@ -482,3 +484,19 @@ model IntegrationJobQueue {
 
   @@map("integration_job_queue")
 }
+
+/// OTP verification records for inquiry phone and email verification
+model OtpVerification {
+  id         String   @id @default(uuid())
+  identifier String   // phone number (e.g. +91...) or email address
+  channel    String   // "PHONE" | "EMAIL"
+  otpHash    String
+  expiresAt  DateTime
+  attempts   Int      @default(0)
+  verified   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([identifier])
+  @@map("otp_verifications")
+}
+

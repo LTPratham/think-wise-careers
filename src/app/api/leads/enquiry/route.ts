@@ -25,7 +25,20 @@ export async function POST(req: Request) {
       email
     );
 
-    // 2. Qualify lead
+    // 2. Validate OTP Token if provided
+    let isPhoneVerified = false;
+    let isEmailVerified = false;
+
+    if (body.verificationToken) {
+      const { validateVerificationToken } = await import("@/lib/otp");
+      const verifiedPhone = await validateVerificationToken(body.verificationToken, validatedData.phone);
+      const verifiedEmail = await validateVerificationToken(body.verificationToken, email);
+      
+      if (verifiedPhone) isPhoneVerified = true;
+      if (verifiedEmail) isEmailVerified = true;
+    }
+
+    // 3. Qualify lead (OTP verified leads are immediately QUALIFIED)
     const qualification = qualifyLead({
       phone: validatedData.phone,
       email: email,
@@ -33,7 +46,11 @@ export async function POST(req: Request) {
       isDuplicate,
     });
 
-    // 3. Persist Lead & Touchpoint
+    const finalQualificationFlag = (isPhoneVerified || isEmailVerified) 
+      ? "QUALIFIED" 
+      : qualification.flag;
+
+    // 4. Persist Lead & Touchpoint
     let leadId = existingLeadId;
 
     if (isDuplicate && existingLeadId) {
@@ -46,10 +63,15 @@ export async function POST(req: Request) {
         },
       });
 
-      // Update last activity
+      // Update last activity and verification flags if verified now
       await prisma.lead.update({
         where: { id: existingLeadId },
-        data: { lastActivityAt: new Date() },
+        data: { 
+          lastActivityAt: new Date(),
+          phoneVerified: isPhoneVerified ? true : undefined,
+          emailVerified: isEmailVerified ? true : undefined,
+          qualificationFlag: (isPhoneVerified || isEmailVerified) ? "QUALIFIED" : undefined,
+        },
       });
     } else {
       // Create new lead and initial touchpoint
@@ -61,7 +83,9 @@ export async function POST(req: Request) {
           sourcePage,
           serviceInterest: validatedData.serviceInterest,
           message: isFull ? (validatedData as any).message : null,
-          qualificationFlag: qualification.flag,
+          qualificationFlag: finalQualificationFlag,
+          phoneVerified: isPhoneVerified,
+          emailVerified: isEmailVerified,
           touchpoints: {
             create: {
               sourcePage,

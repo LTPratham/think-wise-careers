@@ -316,3 +316,72 @@ export async function sendConsultationBookingNotificationEmail(bookingData: {
   }
 }
 
+export async function sendOtpEmail({ email, code }: { email: string; code: string }): Promise<boolean> {
+  if (!resend) {
+    console.warn(`[Resend] Missing Master API key (RESEND_API_KEY_ADMISSIONS), simulating OTP delivery`);
+    return true;
+  }
+
+  try {
+    const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thinkwisecareers.com";
+
+    await resend.emails.send({
+      from: 'Think Wise Careers <admissions@thinkwisecareers.com>',
+      to: email,
+      subject: `${code} is your Think Wise Careers verification code`,
+      html: `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        </head>
+        <body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f8fafc; color: #1e293b;">
+          <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f8fafc; padding: 40px 20px;">
+            <tr>
+              <td align="center">
+                <table width="100%" max-width="500" cellpadding="0" cellspacing="0" style="max-width: 500px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); border: 1px solid #e2e8f0;">
+                  <tr>
+                    <td style="background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%); padding: 28px 24px; text-align: center;">
+                      <h1 style="color: #ffffff; margin: 0; font-size: 22px; font-weight: 700;">Think Wise Careers</h1>
+                      <p style="color: #bfdbfe; margin: 6px 0 0 0; font-size: 13px;">Inquiry & Contact Verification</p>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 32px 28px; text-align: center;">
+                      <h2 style="margin: 0 0 12px; font-size: 18px; color: #0f172a;">Verify Your Identity</h2>
+                      <p style="margin: 0 0 24px; font-size: 14px; line-height: 1.5; color: #475569;">
+                        Use the 6-digit verification code below to verify your inquiry submission with Think Wise Careers. This code is valid for <strong>5 minutes</strong>.
+                      </p>
+                      
+                      <div style="background-color: #eff6ff; border: 2px dashed #3b82f6; border-radius: 12px; padding: 18px; display: inline-block; margin: 0 auto 24px;">
+                        <span style="font-family: monospace; font-size: 32px; font-weight: 700; letter-spacing: 6px; color: #1e3a8a;">${code}</span>
+                      </div>
+
+                      <p style="margin: 0 0 20px; font-size: 13px; color: #64748b; line-height: 1.4;">
+                        If you did not request this verification code, please ignore this email. Do not share this code with anyone.
+                      </p>
+
+                      <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 24px 0;" />
+                      <p style="font-size: 12px; color: #94a3b8; margin: 0;">
+                        Think Wise Careers · Jaipur, Rajasthan · <a href="${siteUrl}" style="color: #3b82f6; text-decoration: none;">thinkwisecareers.com</a>
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </body>
+        </html>
+      `
+    });
+    console.log(`[Resend] OTP verification email sent to ${email}`);
+    return true;
+  } catch (error) {
+    console.error('[Resend OTP Error]:', error);
+    return false;
+  }
+}
+
+
