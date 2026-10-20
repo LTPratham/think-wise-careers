@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { Mail, Phone, MessageCircle, RefreshCw, CheckCircle2, ShieldCheck, ArrowLeft, Sparkles } from "lucide-react";
+import { Mail, Phone, MessageCircle, RefreshCw, CheckCircle2, ShieldCheck, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 interface OtpVerificationStepProps {
@@ -27,7 +27,6 @@ export function OtpVerificationStep({
   const [isSending, setIsSending] = useState(false);
   const [isVerifying, setIsVerifying] = useState(false);
   const [resendCooldown, setResendCooldown] = useState(45);
-  const [devCode, setDevCode] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -82,9 +81,6 @@ export function OtpVerificationStep({
       );
 
       setResendCooldown(45);
-      if (data.devCode) {
-        setDevCode(data.devCode);
-      }
     } catch (err: any) {
       setErrorMsg(err.message || "Failed to send code. Please try again.");
       toast.error(err.message || "Failed to send OTP");
@@ -248,13 +244,6 @@ export function OtpVerificationStep({
         ))}
       </div>
 
-      {/* Dev helper code */}
-      {devCode && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 text-center text-xs text-amber-800 flex items-center justify-center gap-2">
-          <Sparkles className="w-4 h-4 text-amber-600" />
-          <span>Dev Mode Test OTP: <strong className="font-mono text-sm underline">{devCode}</strong></span>
-        </div>
-      )}
 
       {/* Error message */}
       {errorMsg && (

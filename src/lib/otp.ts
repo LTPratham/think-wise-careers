@@ -100,13 +100,14 @@ export async function sendOtp({
     simulated = !!smsResult.simulated;
   }
 
-  const isDev = process.env.NODE_ENV !== "production";
+  if (process.env.NODE_ENV !== "production") {
+    console.log(`[OTP Sent in Dev] Target: ${cleanId} (${channel}) | Code: ${code}`);
+  }
 
   return {
     success: true,
     message: `OTP sent successfully to your ${channel === 'EMAIL' ? 'email address' : 'mobile phone'}.`,
-    simulated,
-    devCode: isDev ? code : undefined // Helpful in local dev console/UI
+    simulated
   };
 }
 

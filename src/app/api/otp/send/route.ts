@@ -49,8 +49,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       success: true,
       message: result.message,
-      simulated: result.simulated,
-      devCode: result.devCode
+      simulated: result.simulated
     });
   } catch (error: any) {
     console.error("[OTP Send API Error]:", error);
