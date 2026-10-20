@@ -61,6 +61,23 @@ export async function sendOtp({
     };
   }
 
+  // 1b. Rapid duplicate request debounce (skip resending if an OTP was sent less than 10 seconds ago)
+  const existingRecentOtp = await prisma.otpVerification.findFirst({
+    where: {
+      identifier: cleanId,
+      verified: false,
+      expiresAt: { gt: new Date() }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+
+  if (existingRecentOtp && (Date.now() - existingRecentOtp.createdAt.getTime()) < 10000) {
+    return {
+      success: true,
+      message: `Verification code was just sent to your ${channel === 'EMAIL' ? 'email' : 'WhatsApp'}. Please check your messages.`
+    };
+  }
+
   // 2. Generate 6-digit OTP
   const code = generateOtpCode();
   const salt = await bcrypt.genSalt(10);

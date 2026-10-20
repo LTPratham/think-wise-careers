@@ -30,6 +30,7 @@ export function OtpVerificationStep({
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const sentKeyRef = useRef<string | null>(null);
 
   const activeIdentifier = channel === "PHONE" ? phone : email;
 
@@ -42,10 +43,13 @@ export function OtpVerificationStep({
     return () => clearInterval(timer);
   }, [resendCooldown]);
 
-  // Trigger initial OTP send on mount or channel switch
+  // Trigger initial OTP send on mount or channel switch (guarded against React 18 StrictMode duplicate run)
   useEffect(() => {
+    const key = `${channel}:${channel === "PHONE" ? phone : email}`;
+    if (sentKeyRef.current === key) return;
+    sentKeyRef.current = key;
     handleSendOtp(channel);
-  }, [channel]);
+  }, [channel, phone, email]);
 
   // Focus first input box on load
   useEffect(() => {
@@ -53,6 +57,7 @@ export function OtpVerificationStep({
   }, [channel]);
 
   async function handleSendOtp(targetChannel: "PHONE" | "EMAIL") {
+    if (isSending) return;
     setIsSending(true);
     setErrorMsg(null);
     setOtpDigits(["", "", "", "", "", ""]);
