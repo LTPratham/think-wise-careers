@@ -37,8 +37,10 @@ export async function sendSms({ phone, message, code }: SendSmsOptions): Promise
           if (sessionsRes.ok) {
             const sessions = await sessionsRes.json();
             if (Array.isArray(sessions) && sessions.length > 0) {
-              const active = sessions.find((s: any) => s.status === "CONNECTED" || s.status === "WORKING") || sessions[0];
-              sessionId = active?.id || active?.sessionId;
+              const active = sessions.find((s: any) => 
+                ['ready', 'connected', 'working'].includes(String(s.status).toLowerCase())
+              ) || sessions[0];
+              sessionId = active?.id || active?.sessionId || active?.name;
             }
           }
         } catch (e) {
