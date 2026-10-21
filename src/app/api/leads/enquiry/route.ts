@@ -97,9 +97,8 @@ export async function POST(req: Request) {
       leadId = newLead.id;
     }
 
-    // 4. Enqueue Async Jobs (CRM Sync, Email Notification, WhatsApp)
-    // We don't await the job execution, just the enqueuing, so the user gets a fast response
-    await Promise.all([
+    // 4. Enqueue Async Jobs & Dispatch Notifications (CRM Sync, Email Notification, WhatsApp)
+    await Promise.allSettled([
       enqueueJob(JobType.CRM_SYNC, { leadId }),
       enqueueJob(JobType.INTERNAL_NOTIFICATION, { 
         leadId, 
@@ -107,7 +106,27 @@ export async function POST(req: Request) {
         details: validatedData
       }),
       // Trigger the real email synchronously without waiting for the stub queue
-      sendLeadNotificationEmail({ ...validatedData, email, sourcePage, leadId })
+      sendLeadNotificationEmail({ ...validatedData, email, sourcePage, leadId }),
+      // Trigger Instant WhatsApp Welcome to Student via OpenWA
+      import("@/lib/whatsapp").then(({ sendLeadWelcomeWhatsApp, sendInternalLeadAlertWhatsApp }) => {
+        return Promise.allSettled([
+          sendLeadWelcomeWhatsApp({
+            name: validatedData.name,
+            phone: validatedData.phone,
+            serviceInterest: validatedData.serviceInterest,
+            sourcePage,
+          }),
+          sendInternalLeadAlertWhatsApp({
+            name: validatedData.name,
+            phone: validatedData.phone,
+            email,
+            serviceInterest: validatedData.serviceInterest,
+            sourcePage,
+            qualificationFlag: finalQualificationFlag,
+            isDuplicate,
+          })
+        ]);
+      }).catch((err) => console.error("[WhatsApp Enquiry Dispatch Error]:", err))
     ]);
 
     return NextResponse.json({

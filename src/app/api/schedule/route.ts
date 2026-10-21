@@ -72,20 +72,47 @@ export async function POST(req: Request) {
       },
     });
 
-    // 3. Trigger Email notifications
-    await sendConsultationBookingNotificationEmail({
-      name: validated.name,
-      email: validated.email,
-      phone: validated.phone,
-      date: validated.date,
-      timeSlot: validated.timeSlot,
-      mode: validated.mode,
-      serviceInterest: validated.serviceInterest,
-      targetCountry: validated.targetCountry,
-      targetDegree: validated.targetDegree,
-      notes: validated.notes,
-      bookingId: booking.id,
-    });
+    // 3. Trigger Email & WhatsApp notifications
+    await Promise.allSettled([
+      sendConsultationBookingNotificationEmail({
+        name: validated.name,
+        email: validated.email,
+        phone: validated.phone,
+        date: validated.date,
+        timeSlot: validated.timeSlot,
+        mode: validated.mode,
+        serviceInterest: validated.serviceInterest,
+        targetCountry: validated.targetCountry,
+        targetDegree: validated.targetDegree,
+        notes: validated.notes,
+        bookingId: booking.id,
+      }),
+      import("@/lib/whatsapp").then(({ sendConsultationConfirmationWhatsApp, sendConsultationAlertToCounsellorWhatsApp }) => {
+        return Promise.allSettled([
+          sendConsultationConfirmationWhatsApp({
+            name: validated.name,
+            phone: validated.phone,
+            date: validated.date,
+            timeSlot: validated.timeSlot,
+            mode: validated.mode,
+            serviceInterest: validated.serviceInterest,
+            targetCountry: validated.targetCountry,
+            notes: validated.notes,
+          }),
+          sendConsultationAlertToCounsellorWhatsApp({
+            name: validated.name,
+            phone: validated.phone,
+            email: validated.email,
+            date: validated.date,
+            timeSlot: validated.timeSlot,
+            mode: validated.mode,
+            serviceInterest: validated.serviceInterest,
+            targetCountry: validated.targetCountry,
+            notes: validated.notes,
+          })
+        ]);
+      }).catch((err) => console.error("[WhatsApp Schedule Dispatch Error]:", err))
+    ]);
 
     return NextResponse.json({ success: true, bookingId: booking.id });
   } catch (error: any) {
