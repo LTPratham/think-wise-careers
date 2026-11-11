@@ -21,8 +21,47 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "https://thinkwisecareers.com"),
   title: "Think Wise Careers | Premium International Education Consulting",
-  description: "Expert guidance for Study Abroad and MBBS Abroad admissions in top global universities.",
+  description: "Expert guidance for Study Abroad admissions, Education Loans, Student Accommodation, and TOEFL exam vouchers for top global universities.",
+  applicationName: "Think Wise Careers",
+  authors: [{ name: "Think Wise Careers" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icon.png", type: "image/png", sizes: "512x512" },
+      { url: "/icon-192.png", type: "image/png", sizes: "192x192" },
+      { url: "/icon-48.png", type: "image/png", sizes: "48x48" },
+    ],
+    shortcut: ["/favicon.ico"],
+    apple: [
+      { url: "/apple-icon.png", sizes: "180x180", type: "image/png" },
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
+  manifest: "/site.webmanifest",
+  openGraph: {
+    title: "Think Wise Careers | Premium International Education Consulting",
+    description: "Expert guidance for Study Abroad admissions, Education Loans, Student Accommodation, and TOEFL exam vouchers for top global universities.",
+    url: "https://thinkwisecareers.com",
+    siteName: "Think Wise Careers",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Think Wise Careers - Your Journey, Our Guidance",
+      },
+    ],
+    locale: "en_IN",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Think Wise Careers | Premium International Education Consulting",
+    description: "Expert guidance for Study Abroad admissions, Education Loans, Student Accommodation, and TOEFL vouchers.",
+    images: ["/og-image.png"],
+  },
 };
 
 export default function RootLayout({

@@ -3,7 +3,7 @@ import { Mail, MapPin, Phone, Clock, MessageCircle } from "lucide-react";
 
 export const metadata = {
   title: "Contact Us | Think Wise Careers",
-  description: "Get in touch with Think Wise Careers for study abroad counselling, MBBS abroad guidance, and expert career advice.",
+  description: "Get in touch with Think Wise Careers for study abroad counselling, education loans, accommodation support, and expert career advice.",
 };
 
 export default function ContactPage() {

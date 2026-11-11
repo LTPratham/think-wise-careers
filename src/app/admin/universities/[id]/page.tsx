@@ -5,12 +5,13 @@ import { ChevronLeft } from "lucide-react";
 import { UniversityForm } from "@/components/admin/UniversityForm";
 
 export default async function AdminUniversityEditorPage({ params }: { params: Promise<{ id: string }> }) {
-  const isNew = (await params).id === "new";
+  const { id } = await params;
+  const isNew = id === "new";
   
   let uni = null;
   if (!isNew) {
     uni = await prisma.university.findUnique({
-      where: { id: (await params).id },
+      where: { id },
     });
     if (!uni) notFound();
   }

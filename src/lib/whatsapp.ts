@@ -215,7 +215,7 @@ export async function sendLeadWelcomeWhatsApp(lead: {
   sourcePage?: string | null;
 }): Promise<void> {
   const firstName = lead.name.trim().split(" ")[0] || "Student";
-  const interest = lead.serviceInterest || "Study Abroad & MBBS";
+  const interest = lead.serviceInterest || "Study Abroad & Global Admissions";
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://thinkwisecareers.com";
   const counsellorPhone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "917300036507";
 
@@ -326,7 +326,7 @@ Your 1-on-1 personalized counselling session has been confirmed!
 • *Focus Area:* ${booking.serviceInterest || "Global Education Guidance"}
 ${booking.targetCountry ? `• *Target Country:* ${booking.targetCountry}\n` : ""}${booking.mode === "GOOGLE_MEET" ? "• *Meeting Link:* Will be shared via WhatsApp 15 minutes before the slot\n" : ""}
 📋 *Preparation Tip:*
-Keep your latest academic marksheets (10th/12th/Graduation) and NEET scorecard (for MBBS) ready so our counsellor can give you exact eligibility options.
+Keep your latest academic marksheets (10th/12th/Graduation) and test scores (IELTS/TOEFL/GRE if applicable) ready so our counsellor can give you exact eligibility options.
 
 Need to reschedule or have urgent questions? Reply directly to this message or visit ${siteUrl}/schedule.
 

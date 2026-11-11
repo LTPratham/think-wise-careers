@@ -122,31 +122,32 @@ A senior counsellor will update you shortly!`;
       const brochureReply =
 `📖 *Think Wise Careers — Official Overseas Guides*
 
-You can access and download our comprehensive university admission guides & fee charts here:
+You can access and explore our comprehensive university admission, loan, and accommodation guides here:
 
-• *MBBS in Georgia Guide:* ${siteUrl}/mbbs-abroad/georgia
-• *MBBS in Uzbekistan Guide:* ${siteUrl}/mbbs-abroad/uzbekistan
-• *MBBS in Russia Guide:* ${siteUrl}/mbbs-abroad/russia
-• *Study Abroad (UK/US/Canada):* ${siteUrl}/study-abroad
+• *Study Abroad (UK/US/Canada/Europe):* ${siteUrl}/study-abroad
+• *Education Loan Support (16+ Partners):* ${siteUrl}/services/education-loan
+• *Student Accommodation Guide:* ${siteUrl}/services/student-accommodation
+• *ETS TOEFL Exam Vouchers:* ${siteUrl}/services/toefl-vouchers
 
-Need an exact cost breakdown for a specific university? Reply with the university name or type *FEES*.`;
+Need an exact cost breakdown for a specific country or university? Reply with the country name or type *FEES*.`;
 
       await sendWhatsAppText({ phone: cleanPhone, message: brochureReply, quotedMessageId: messageId });
       return NextResponse.json({ success: true, action: "brochure_sent" });
     }
 
     // Trigger C: Fee & Budget queries
-    if (lowerText.includes("fee") || lowerText.includes("cost") || lowerText.includes("budget") || lowerText.includes("price")) {
+    if (lowerText.includes("fee") || lowerText.includes("cost") || lowerText.includes("budget") || lowerText.includes("price") || lowerText.includes("loan")) {
       const feeReply =
-`💰 *Tuition & Total Budget Overview:*
+`💰 *Education Loan & Budget Overview:*
 
-• *MBBS Abroad (Georgia / Uzbekistan / Russia / Kazakhstan):*
-  Starting from ₹18 Lakhs to ₹32 Lakhs for the entire 5–6 year course (Tuition + Hostel + Mess).
+• *Education Loan Support (Up to 100% Funding):*
+  We partner with 16+ banks and NBFCs (HDFC Credila, Avanse, SBI, Prodigy, etc.) covering tuition, living expenses, and travel with fast approvals.
+  Explore details: ${siteUrl}/services/education-loan
 
 • *Study Abroad (UK, US, Canada, Europe):*
-  Tuition fees vary by course and degree level. Scholarships up to 50% are available for eligible profiles.
+  Tuition fees vary by program and institution. Merit scholarships up to 50% are available for eligible profiles.
 
-👉 *Want a personalized fee estimate for your profile?*
+👉 *Want a personalized loan eligibility and fee estimate?*
 Schedule a free 1-on-1 consultation: ${siteUrl}/schedule
 Or reply with your target country & budget!`;
 
@@ -154,20 +155,23 @@ Or reply with your target country & budget!`;
       return NextResponse.json({ success: true, action: "fee_guide_sent" });
     }
 
-    // Trigger D: Eligibility / NEET queries
-    if (lowerText.includes("eligib") || lowerText.includes("neet") || lowerText.includes("cutoff") || lowerText.includes("marks")) {
+    // Trigger D: Eligibility queries
+    if (lowerText.includes("eligib") || lowerText.includes("cutoff") || lowerText.includes("marks") || lowerText.includes("ielts") || lowerText.includes("toefl")) {
       const eligibilityReply =
-`📋 *Admission Eligibility Criteria:*
+`📋 *Admission & Loan Eligibility Criteria:*
 
-• *For MBBS Abroad:*
-  - Minimum 50% in Physics, Chemistry, Biology (12th Grade).
-  - Valid NEET Qualifying Score (NMC guidelines).
-  
 • *For Bachelors / Masters Abroad:*
   - Minimum 55–60% in previous qualification.
-  - Medium of Instruction (MOI) or IELTS accepted.
+  - IELTS / TOEFL / MOI accepted depending on university.
+  
+• *For Education Loans:*
+  - Co-borrower (parent/guardian) with steady income or collateral.
+  - Pre-visa loan sanction letters available.
 
-Reply with your *12th PCB %* and *NEET score*, and our advisor will send you a pre-approved list of universities!`;
+• *TOEFL Exam Vouchers:*
+  - Official discounted ETS vouchers available for instant booking: ${siteUrl}/services/toefl-vouchers
+
+Reply with your latest marks and target degree, and our advisor will evaluate your profile!`;
 
       await sendWhatsAppText({ phone: cleanPhone, message: eligibilityReply, quotedMessageId: messageId });
       return NextResponse.json({ success: true, action: "eligibility_sent" });

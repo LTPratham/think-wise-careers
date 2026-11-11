@@ -6,7 +6,7 @@ export const QuickEnquirySchema = z.object({
   name: z.string().min(2, "Name is too short"),
   email: z.string().email("Please enter a valid email address"),
   phone: z.string().min(10, "Invalid phone number format"),
-  serviceInterest: z.string().min(1, "Please select an interest"),
+  serviceInterest: z.string().optional().default("Study Abroad"),
 });
 
 export const FullEnquirySchema = z.object({

@@ -169,13 +169,13 @@ export function OtpVerificationStep({
   const isFullCodeEntered = otpDigits.every((d) => d.length === 1);
 
   return (
-    <div className="bg-slate-50/80 border border-indigo-100 rounded-2xl p-6 shadow-inner space-y-6 animate-in fade-in zoom-in-95 duration-200">
+    <div className="bg-slate-50/80 border border-indigo-100 rounded-2xl p-4 sm:p-6 shadow-inner space-y-5 animate-in fade-in zoom-in-95 duration-200">
       {/* Header */}
-      <div className="text-center space-y-2">
-        <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
-          <ShieldCheck className="w-6 h-6" />
+      <div className="text-center space-y-1.5">
+        <div className="w-11 h-11 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto shadow-sm">
+          <ShieldCheck className="w-5 h-5" />
         </div>
-        <h3 className="text-xl font-bold font-outfit text-slate-900">
+        <h3 className="text-lg sm:text-xl font-bold font-outfit text-slate-900">
           Verify Your Inquiry
         </h3>
         <p className="text-xs text-slate-500 max-w-sm mx-auto">
@@ -184,20 +184,20 @@ export function OtpVerificationStep({
       </div>
 
       {/* Dual Channel Tabs */}
-      <div className="grid grid-cols-2 gap-2 p-1 bg-slate-200/60 rounded-xl">
+      <div className="grid grid-cols-2 gap-1.5 sm:gap-2 p-1 bg-slate-200/60 rounded-xl">
         <button
           type="button"
           onClick={() => {
             if (channel !== "PHONE") setChannel("PHONE");
           }}
-          className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 sm:px-3 rounded-lg text-xs font-semibold transition-all ${
             channel === "PHONE"
               ? "bg-white text-indigo-700 shadow-sm"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <MessageCircle className="w-3.5 h-3.5 text-emerald-600" />
-          WhatsApp / SMS ({phone ? phone.slice(-4).padStart(phone.length, "•") : "Mobile"})
+          <MessageCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <span className="truncate">SMS / WA ({phone ? `••${phone.slice(-4)}` : "Mobile"})</span>
         </button>
 
         <button
@@ -205,14 +205,14 @@ export function OtpVerificationStep({
           onClick={() => {
             if (channel !== "EMAIL") setChannel("EMAIL");
           }}
-          className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all ${
+          className={`flex items-center justify-center gap-1.5 py-2 px-2 sm:px-3 rounded-lg text-xs font-semibold transition-all ${
             channel === "EMAIL"
               ? "bg-white text-indigo-700 shadow-sm"
               : "text-slate-600 hover:text-slate-900"
           }`}
         >
-          <Mail className="w-3.5 h-3.5" />
-          Email OTP
+          <Mail className="w-3.5 h-3.5 shrink-0" />
+          <span>Email OTP</span>
         </button>
       </div>
 
@@ -220,14 +220,14 @@ export function OtpVerificationStep({
       <div className="text-center">
         <span className="text-xs text-slate-500">
           Sending code to:{" "}
-          <strong className="text-slate-800 font-mono">
+          <strong className="text-slate-800 font-mono text-xs sm:text-sm">
             {activeIdentifier || "your contact"}
           </strong>
         </span>
       </div>
 
       {/* 6-Digit PIN Boxes */}
-      <div className="flex justify-center items-center gap-2 sm:gap-3">
+      <div className="flex justify-center items-center gap-1.5 sm:gap-2.5">
         {otpDigits.map((digit, idx) => (
           <input
             key={idx}
@@ -236,11 +236,12 @@ export function OtpVerificationStep({
             }}
             type="text"
             inputMode="numeric"
+            autoComplete={idx === 0 ? "one-time-code" : undefined}
             maxLength={1}
             value={digit}
             onChange={(e) => handleDigitChange(idx, e.target.value)}
             onKeyDown={(e) => handleKeyDown(idx, e)}
-            className={`w-11 h-13 sm:w-12 sm:h-14 text-center text-xl font-bold font-mono rounded-xl border transition-all outline-none ${
+            className={`w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold font-mono rounded-xl border transition-all outline-none ${
               digit
                 ? "border-indigo-600 bg-white shadow-sm ring-2 ring-indigo-100"
                 : "border-slate-300 bg-white hover:border-slate-400 focus:border-indigo-600 focus:ring-2 focus:ring-indigo-100"

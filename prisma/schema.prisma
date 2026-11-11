@@ -152,6 +152,7 @@ model Country {
   id              String        @id @default(uuid())
   slug            String        @unique
   name            String
+  imageUrl        String?
   overview        String        @db.Text
   popularCourses  Json          @default("[]")
   eligibility     String        @db.Text

@@ -156,6 +156,24 @@ async function main() {
         description: "Psychometric testing and career path mapping.",
         process: "Test -> Report -> Counselling Session",
       },
+      {
+        slug: "education-loan",
+        name: "Education Loan Support",
+        description: "Assistance with education loans through our network of trusted banking and financial partners.",
+        process: "Pre-Sanction -> Partner Comparison -> Sanction -> Disbursement",
+      },
+      {
+        slug: "student-accommodation",
+        name: "Student Accommodation",
+        description: "Safe, verified and student-friendly housing options across top overseas destinations.",
+        process: "Destination Selection -> Verified Listing -> Digital Booking -> Move-in Assistance",
+      },
+      {
+        slug: "toefl-vouchers",
+        name: "TOEFL Vouchers",
+        description: "Official ETS TOEFL test vouchers at discounted student prices with quick processing and study resources.",
+        process: "Voucher Purchase -> Slot Booking -> Prep Material Access -> Exam Day Support",
+      },
     ],
   });
 

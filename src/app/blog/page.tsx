@@ -7,7 +7,7 @@ import { format } from "date-fns";
 
 export const metadata = {
   title: "Blog & Insights | Think Wise Careers",
-  description: "Read the latest news, guides, and tips on studying abroad, MBBS admissions, visas, and career planning.",
+  description: "Read the latest news, guides, and tips on studying abroad, education loans, student visas, and career planning.",
 };
 
 export default async function BlogHubPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
@@ -29,7 +29,7 @@ export default async function BlogHubPage({ searchParams }: { searchParams: Prom
   const categories = [
     { label: "All", value: "" },
     { label: "Study Abroad", value: "STUDY_ABROAD" },
-    { label: "MBBS Abroad", value: "MBBS_ABROAD" },
+    { label: "Education Loans", value: "EDUCATION_LOANS" },
     { label: "Visa", value: "VISA" },
     { label: "Career", value: "CAREER" },
     { label: "Scholarships", value: "SCHOLARSHIPS" },

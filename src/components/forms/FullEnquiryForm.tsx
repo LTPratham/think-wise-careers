@@ -124,7 +124,9 @@ export function FullEnquiryForm({ sourcePage = "Contact" }: { sourcePage?: strin
                 </FormControl>
                 <SelectContent>
                   <SelectItem value="Study Abroad">Study Abroad Admissions</SelectItem>
-                  <SelectItem value="MBBS Abroad">MBBS Abroad</SelectItem>
+                  <SelectItem value="Education Loan">Education Loan Support</SelectItem>
+                  <SelectItem value="Student Accommodation">Student Accommodation</SelectItem>
+                  <SelectItem value="TOEFL Vouchers">TOEFL Exam Vouchers</SelectItem>
                   <SelectItem value="Career Counselling">Career Counselling</SelectItem>
                   <SelectItem value="Visa Assistance">Visa Assistance</SelectItem>
                   <SelectItem value="Other">Other Services</SelectItem>

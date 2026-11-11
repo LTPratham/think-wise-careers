@@ -19,16 +19,16 @@ export default async function StudyAbroadHub() {
   return (
     <div className="flex flex-col min-h-screen">
       {/* Hero Section */}
-      <div className="bg-indigo-950 text-white py-32 lg:py-48 relative overflow-hidden">
+      <div className="bg-indigo-950 text-white py-16 sm:py-24 lg:py-36 relative overflow-hidden">
         <img src="/images/study-abroad-hero.png" alt="Global University Campus" className="absolute inset-0 w-full h-full object-cover opacity-60 animate-ken-burns" />
         <div className="absolute inset-0 bg-gradient-to-t from-indigo-950 via-indigo-900/40 to-transparent z-0" />
         <div className="absolute inset-0 bg-gradient-to-r from-indigo-950/90 via-indigo-950/40 to-transparent z-0" />
         <div className="container mx-auto px-4 relative z-10 text-center">
-          <Globe className="w-16 h-16 mx-auto mb-6 opacity-80" />
-          <h1 className="text-5xl lg:text-7xl font-bold font-outfit mb-6">
+          <Globe className="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 opacity-80" />
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold font-outfit mb-4 sm:mb-6">
             Study Abroad <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 to-purple-300">Destinations</span>
           </h1>
-          <p className="text-xl max-w-2xl mx-auto opacity-90 leading-relaxed">
+          <p className="text-base sm:text-xl max-w-2xl mx-auto opacity-90 leading-relaxed px-2">
             Explore world-class universities and start your global education journey today.
           </p>
         </div>
@@ -47,7 +47,7 @@ export default async function StudyAbroadHub() {
                 <Card key={country.id} className="flex flex-col h-full hover:shadow-xl transition-all duration-300 group overflow-hidden border-0 glass-card">
                   <div className="h-56 relative overflow-hidden bg-slate-200">
                     <img 
-                      src={`/images/${country.slug}.png`}
+                      src={country.imageUrl || `/images/${country.slug}.png`}
                       alt={`Study in ${country.name}`} 
                       className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
                     />

@@ -3,15 +3,16 @@ import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/rbac";
 import { writeAuditLog } from "@/lib/auditLog";
 
-export async function PUT(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function PUT(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireEditor();
     if (auth instanceof NextResponse) return auth;
 
+    const { id } = await params;
     const body = await req.json();
 
     const service = await prisma.service.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         name: body.name,
         slug: body.slug,
@@ -30,13 +31,15 @@ export async function PUT(req: Request, context: { params: Promise<{ id: string 
   }
 }
 
-export async function DELETE(req: Request, context: { params: Promise<{ id: string }> }) {
+export async function DELETE(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireEditor();
     if (auth instanceof NextResponse) return auth;
 
+    const { id } = await params;
+
     const service = await prisma.service.delete({
-      where: { id: params.id },
+      where: { id },
     });
 
     await writeAuditLog(auth.user.id, "DELETE", "Service", service.id, `Deleted service ${service.name}`);

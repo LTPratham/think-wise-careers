@@ -19,7 +19,7 @@ const TIME_SLOTS = [
 
 const SERVICES = [
   { id: "Study Abroad", label: "Study Abroad (Bachelors / Masters)", icon: Globe, desc: "UK, USA, Canada, Germany, Australia" },
-  { id: "MBBS Abroad", label: "MBBS Abroad (NMC Recognized)", icon: Shield, desc: "Georgia, Russia, Uzbekistan, Philippines" },
+  { id: "Education Loan Support", label: "Education Loan Support", icon: Shield, desc: "16+ Bank & NBFC partners, up to 100% funding" },
   { id: "Career Counselling", label: "Career Counselling & Profiling", icon: Sparkles, desc: "Aptitude, stream selection & career mapping" },
 ];
 
@@ -243,7 +243,7 @@ export default function ScheduleConsultationPage() {
                           Target Degree / Course (Optional)
                         </label>
                         <Input 
-                          placeholder="e.g. MBBS, MS Computer Science, MBA" 
+                          placeholder="e.g. MS Computer Science, MBA, Engineering, BBA" 
                           value={targetDegree}
                           onChange={(e) => setTargetDegree(e.target.value)}
                         />
@@ -436,7 +436,7 @@ export default function ScheduleConsultationPage() {
                           Brief Note or Specific Questions (Optional)
                         </label>
                         <Textarea 
-                          placeholder="e.g. I want to know about fee budget for MBBS in Georgia and NEET eligibility."
+                          placeholder="e.g. I want to check my eligibility for education loans and university options for the upcoming intake."
                           rows={3}
                           value={formData.notes}
                           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
