@@ -21,7 +21,43 @@ export async function sendSms({ phone, message, code }: SendSmsOptions): Promise
   const indian10Digit = digitsOnly.length > 10 ? digitsOnly.slice(-10) : digitsOnly;
   const fullIntlNumber = digitsOnly.startsWith('91') || digitsOnly.length > 10 ? digitsOnly : `91${indian10Digit}`;
 
-  // 1. OpenWA WhatsApp Gateway (Free, Self-Hosted WhatsApp API Gateway: https://github.com/rmyndharis/OpenWA)
+  // 1. AiSensy Official Meta WhatsApp Business API (https://backend.aisensy.com)
+  if (process.env.AISENSY_API_KEY) {
+    try {
+      const apiKey = process.env.AISENSY_API_KEY;
+      const campaignName = process.env.AISENSY_CAMPAIGN_NAME || "twc_otp";
+      const destination = fullIntlNumber; // 91XXXXXXXXXX
+
+      const payload: any = {
+        apiKey,
+        campaignName,
+        destination,
+        userName: "Think Wise Careers",
+        templateParams: code ? [code] : [message],
+      };
+
+      const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json().catch(() => null);
+
+      if (response.ok && (data?.success === true || data?.status === "success" || data?.messageId || data?.id)) {
+        console.log(`[AiSensy WhatsApp] Successfully dispatched OTP to ${destination}`);
+        return { success: true };
+      } else {
+        console.error(`[AiSensy WhatsApp Send Error]: Status ${response.status}`, data);
+      }
+    } catch (err: any) {
+      console.error(`[AiSensy WhatsApp Request Exception]:`, err);
+    }
+  }
+
+  // 2. OpenWA WhatsApp Gateway (Self-Hosted WhatsApp Gateway)
   if (process.env.OPENWA_BASE_URL && process.env.OPENWA_API_KEY) {
     try {
       const baseUrl = process.env.OPENWA_BASE_URL.replace(/\/$/, "");
