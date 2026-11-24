@@ -277,16 +277,6 @@ export function Footer() {
         </div>
       </div>
 
-      {/* Skyline Graphic Banner */}
-      <div className="relative w-full h-28 sm:h-36 overflow-hidden pointer-events-none opacity-45 mix-blend-screen">
-        <img 
-          src="/change-images/footer-skyline-banner.jpeg" 
-          alt="International Skyline" 
-          className="w-full h-full object-cover object-[center_65%]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080d1a] via-transparent to-[#080d1a]/60" />
-      </div>
-
       {/* Bottom Sub-Footer Bar */}
       <div className="border-t border-slate-800/80 bg-[#050810] py-6 relative z-10 text-xs text-slate-500">
         <div className="container mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4">
