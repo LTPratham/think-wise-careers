@@ -153,6 +153,49 @@ export function CountryForm({
       .replace(/(^-|-$)+/g, "");
   };
 
+  // Client-side image compression to optimize speed & guarantee serverless compatibility
+  const compressImage = (file: File, maxWidth = 1200, maxHeight = 800, quality = 0.82): Promise<string> => {
+    return new Promise((resolve) => {
+      if (file.type === "image/svg+xml") {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve(ev.target?.result as string);
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let { width, height } = img;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Image Upload Handler
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -160,27 +203,43 @@ export function CountryForm({
 
     setIsUploadingImage(true);
     try {
+      // 1. Generate client-compressed image first as guaranteed instant fallback
+      const fallbackDataUrl = await compressImage(file, 1200, 800);
+
+      // 2. Attempt server upload
       const formData = new FormData();
       formData.append("file", file);
       formData.append("type", "country");
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Upload failed");
+        if (res.ok) {
+          const data = await res.json();
+          form.setValue("imageUrl", data.url, { shouldDirty: true });
+          toast({ title: "Image uploaded successfully!" });
+          return;
+        }
+      } catch (networkErr) {
+        console.warn("Server upload failed, using local fallback", networkErr);
       }
 
-      const data = await res.json();
-      form.setValue("imageUrl", data.url, { shouldDirty: true });
-      toast({ title: "Image uploaded successfully!" });
+      // If server returned non-ok or failed, use client-side optimized image
+      if (fallbackDataUrl) {
+        form.setValue("imageUrl", fallbackDataUrl, { shouldDirty: true });
+        toast({ title: "Image attached successfully!" });
+      } else {
+        throw new Error("Could not process selected image file.");
+      }
     } catch (err: any) {
       toast({ title: err.message || "Failed to upload image", variant: "destructive" });
     } finally {
       setIsUploadingImage(false);
+      // Reset input value so re-selecting same file works
+      e.target.value = "";
     }
   };
 

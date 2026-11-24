@@ -46,9 +46,6 @@ export async function POST(req: Request) {
     const subDir = uploadType === "university" ? "universities" : "countries";
     const uploadDir = path.join(process.cwd(), "public", "uploads", subDir);
 
-    // Ensure directory exists
-    await mkdir(uploadDir, { recursive: true });
-
     // Generate clean filename: timestamp-slugified-original-name
     const ext = path.extname(file.name) || ".png";
     const baseName = file.name
@@ -59,17 +56,33 @@ export async function POST(req: Request) {
     const fileName = `${Date.now()}-${baseName}${ext}`;
     const filePath = path.join(uploadDir, fileName);
 
-    // Write file to disk
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
-    await writeFile(filePath, buffer);
 
-    // Return the public URL path
-    const publicUrl = `/uploads/${subDir}/${fileName}`;
+    // Try saving to disk if filesystem is writable (local dev or VPS)
+    try {
+      await mkdir(uploadDir, { recursive: true });
+      await writeFile(filePath, buffer);
 
-    console.log(`[Upload] ${uploadType} image saved: ${publicUrl} (${(file.size / 1024).toFixed(1)}KB)`);
+      const publicUrl = `/uploads/${subDir}/${fileName}`;
+      console.log(`[Upload] ${uploadType} image saved to disk: ${publicUrl} (${(file.size / 1024).toFixed(1)}KB)`);
+      return NextResponse.json({ url: publicUrl, fileName, size: file.size });
+    } catch (fsError: any) {
+      // Serverless fallback (e.g. Vercel read-only filesystem)
+      console.warn(
+        `[Upload] Filesystem not writable (${fsError?.code || fsError?.message}). Falling back to Base64 Data URL.`
+      );
+      const mimeType = file.type || "image/jpeg";
+      const base64 = buffer.toString("base64");
+      const dataUrl = `data:${mimeType};base64,${base64}`;
 
-    return NextResponse.json({ url: publicUrl, fileName, size: file.size });
+      return NextResponse.json({
+        url: dataUrl,
+        fileName,
+        size: file.size,
+        fallback: "data-url"
+      });
+    }
   } catch (error) {
     console.error("Upload error:", error);
     return NextResponse.json({ error: "Upload failed" }, { status: 500 });

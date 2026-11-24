@@ -46,6 +46,49 @@ export function UniversityForm({ initialData }: { initialData?: any }) {
     },
   });
 
+  // Client-side image compression to optimize speed & guarantee serverless compatibility
+  const compressImage = (file: File, maxWidth = 500, maxHeight = 500, quality = 0.88): Promise<string> => {
+    return new Promise((resolve) => {
+      if (file.type === "image/svg+xml") {
+        const reader = new FileReader();
+        reader.onload = (ev) => resolve(ev.target?.result as string);
+        reader.onerror = () => resolve("");
+        reader.readAsDataURL(file);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let { width, height } = img;
+
+          if (width > maxWidth || height > maxHeight) {
+            const ratio = Math.min(maxWidth / width, maxHeight / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) {
+            resolve(e.target?.result as string);
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", quality));
+        };
+        img.onerror = () => resolve(e.target?.result as string);
+        img.src = e.target?.result as string;
+      };
+      reader.onerror = () => resolve("");
+      reader.readAsDataURL(file);
+    });
+  };
+
   // Handle Logo Upload
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -53,27 +96,41 @@ export function UniversityForm({ initialData }: { initialData?: any }) {
 
     setIsUploadingLogo(true);
     try {
+      // 1. Generate client-compressed image first as guaranteed instant fallback
+      const fallbackDataUrl = await compressImage(file, 500, 500);
+
+      // 2. Attempt server upload
       const formData = new FormData();
       formData.append("file", file);
       formData.append("type", "university");
 
-      const res = await fetch("/api/admin/upload", {
-        method: "POST",
-        body: formData,
-      });
+      try {
+        const res = await fetch("/api/admin/upload", {
+          method: "POST",
+          body: formData,
+        });
 
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Upload failed");
+        if (res.ok) {
+          const data = await res.json();
+          form.setValue("logoUrl", data.url, { shouldDirty: true });
+          toast({ title: "Logo uploaded successfully!" });
+          return;
+        }
+      } catch (networkErr) {
+        console.warn("Server upload failed, using local fallback", networkErr);
       }
 
-      const data = await res.json();
-      form.setValue("logoUrl", data.url, { shouldDirty: true });
-      toast({ title: "Logo uploaded successfully!" });
+      if (fallbackDataUrl) {
+        form.setValue("logoUrl", fallbackDataUrl, { shouldDirty: true });
+        toast({ title: "Logo attached successfully!" });
+      } else {
+        throw new Error("Could not process selected logo file.");
+      }
     } catch (err: any) {
       toast({ title: err.message || "Failed to upload logo", variant: "destructive" });
     } finally {
       setIsUploadingLogo(false);
+      e.target.value = "";
     }
   };
 
