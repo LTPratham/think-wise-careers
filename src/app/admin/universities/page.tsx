@@ -4,6 +4,9 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { UniversitiesTable, UniversityListItem } from "@/components/admin/UniversitiesTable";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminUniversitiesPage() {
   const universities = await prisma.university.findMany({
     orderBy: { name: "asc" },

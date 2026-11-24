@@ -4,6 +4,9 @@ import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CountriesTable, CountryListItem } from "@/components/admin/CountriesTable";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function AdminCountriesPage() {
   const countries = await prisma.country.findMany({
     orderBy: { name: "asc" },

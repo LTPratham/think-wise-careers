@@ -5,6 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Globe, ArrowRight } from "lucide-react";
 import { QuickEnquiryForm } from "@/components/forms/QuickEnquiryForm";
 
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export default async function StudyAbroadHub() {
   const countries = await prisma.country.findMany({
     where: { publishStatus: "PUBLISHED" },

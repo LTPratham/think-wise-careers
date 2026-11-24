@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/rbac";
 import { writeAuditLog } from "@/lib/auditLog";
@@ -48,6 +49,10 @@ export async function PUT(req: Request, { params }: { params: Promise<{ id: stri
 
     await writeAuditLog(auth.user.id, "UPDATE", "Country", country.id, `Updated country ${country.name}`);
 
+    revalidatePath("/study-abroad");
+    revalidatePath(`/study-abroad/${country.slug}`);
+    revalidatePath("/admin/countries");
+
     return NextResponse.json(country);
   } catch (error) {
     console.error("Error updating country:", error);
@@ -67,6 +72,10 @@ export async function DELETE(req: Request, { params }: { params: Promise<{ id: s
     });
 
     await writeAuditLog(auth.user.id, "DELETE", "Country", country.id, `Deleted country ${country.name}`);
+
+    revalidatePath("/study-abroad");
+    revalidatePath(`/study-abroad/${country.slug}`);
+    revalidatePath("/admin/countries");
 
     return NextResponse.json({ success: true });
   } catch (error) {

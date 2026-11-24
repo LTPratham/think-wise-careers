@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
 import { requireEditor } from "@/lib/rbac";
 import { writeAuditLog } from "@/lib/auditLog";
@@ -39,6 +40,9 @@ export async function POST(req: Request) {
     }
 
     await writeAuditLog(auth.user.id, "CREATE", "Country", country.id, `Created country ${country.name}`);
+
+    revalidatePath("/study-abroad");
+    revalidatePath("/admin/countries");
 
     return NextResponse.json(country);
   } catch (error) {
