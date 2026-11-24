@@ -10,7 +10,7 @@ const CORE_SERVICES = [
     id: "study-abroad",
     slug: "study-abroad-admissions",
     name: "Study Abroad Admissions",
-    description: "Guidance for undergraduate and postgraduate programs across 800+ top universities worldwide.",
+    description: "Guidance for undergraduate and postgraduate programs across 600+ top universities worldwide.",
     icon: Building2,
     href: "/study-abroad",
     ctaText: "Explore Universities",

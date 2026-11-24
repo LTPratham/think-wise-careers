@@ -115,7 +115,7 @@ export default async function StudyAbroadHub() {
                   </div>
                   <div>
                     <h4 className="font-bold">Global Partnerships</h4>
-                    <p className="text-sm text-indigo-200">500+ Universities Worldwide</p>
+                    <p className="text-sm text-indigo-200">600+ Universities Worldwide</p>
                   </div>
                 </div>
               </div>

@@ -32,7 +32,7 @@ export default function FloatingBackgroundCards() {
             </div>
             <div>
               <p className="text-sm text-indigo-900/60 font-medium">Top Universities</p>
-              <p className="text-lg font-bold text-indigo-950">500+ Partners</p>
+              <p className="text-lg font-bold text-indigo-950">600+ Universities</p>
             </div>
           </div>
         </div>
@@ -45,7 +45,7 @@ export default function FloatingBackgroundCards() {
             </div>
             <div>
               <p className="text-sm text-purple-900/60 font-medium">Global Reach</p>
-              <p className="text-lg font-bold text-purple-950">15+ Countries</p>
+              <p className="text-lg font-bold text-purple-950">17+ Countries</p>
             </div>
           </div>
         </div>

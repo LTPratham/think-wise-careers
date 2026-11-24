@@ -142,7 +142,7 @@ export default function Home() {
                       <Building2 className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">800+ Global Universities</h4>
+                      <h4 className="text-sm font-bold text-slate-900">600+ Global Universities</h4>
                       <p className="text-xs text-slate-500 mt-0.5">Choose from top-ranked institutions</p>
                     </div>
                   </div>
