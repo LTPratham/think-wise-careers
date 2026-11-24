@@ -22,7 +22,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXTAUTH_URL || "https://thinkwisecareers.com"),
-  title: "Think Wise Careers | Premium International Education Consulting",
+  title: "Think Wise Careers | International Education Consulting",
   description: "Expert guidance for Study Abroad admissions, Education Loans, Student Accommodation, and TOEFL exam vouchers for top global universities.",
   applicationName: "Think Wise Careers",
   authors: [{ name: "Think Wise Careers" }],
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   manifest: "/site.webmanifest",
   openGraph: {
-    title: "Think Wise Careers | Premium International Education Consulting",
+    title: "Think Wise Careers | International Education Consulting",
     description: "Expert guidance for Study Abroad admissions, Education Loans, Student Accommodation, and TOEFL exam vouchers for top global universities.",
     url: "https://thinkwisecareers.com",
     siteName: "Think Wise Careers",
@@ -58,7 +58,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Think Wise Careers | Premium International Education Consulting",
+    title: "Think Wise Careers | International Education Consulting",
     description: "Expert guidance for Study Abroad admissions, Education Loans, Student Accommodation, and TOEFL vouchers.",
     images: ["/og-image.png"],
   },
