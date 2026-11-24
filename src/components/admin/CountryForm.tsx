@@ -32,9 +32,12 @@ import {
   Search,
   Building2,
   AlertTriangle,
-  Loader2
+  Loader2,
+  Sparkles,
+  Zap,
 } from "lucide-react";
 import Link from "next/link";
+import { getCountryTemplate, POPULAR_COUNTRY_TEMPLATES } from "@/lib/countryTemplates";
 
 const countrySchema = z.object({
   name: z.string().min(2, "Country name is required"),
@@ -75,9 +78,14 @@ export function CountryForm({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
 
+  // Available Universities State (can be dynamically added to)
+  const [uniList, setUniList] = useState<UniversityOption[]>(universities);
   // Selected Universities
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>(linkedUniversityIds);
   const [uniSearch, setUniSearch] = useState("");
+  // Quick Add University inline
+  const [quickUniName, setQuickUniName] = useState("");
+  const [isQuickAddingUni, setIsQuickAddingUni] = useState(false);
 
   // Popular Courses Tags
   const [courses, setCourses] = useState<string[]>(() => {
@@ -278,11 +286,134 @@ export function CountryForm({
     }
   };
 
-  const filteredUniversities = universities.filter(
+  const filteredUniversities = uniList.filter(
     (u) =>
       u.name.toLowerCase().includes(uniSearch.toLowerCase()) ||
       u.countryName.toLowerCase().includes(uniSearch.toLowerCase())
   );
+
+  // Template Auto-Fill Logic
+  const handleApplyTemplate = (targetCountryName?: string) => {
+    const rawName = targetCountryName || form.getValues("name");
+    if (!rawName || !rawName.trim()) {
+      toast({
+        title: "Please enter a country name first!",
+        description: "Type a country name or click one of the quick destination pills.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const tpl = getCountryTemplate(rawName);
+
+    // Populate basic fields
+    form.setValue("name", tpl.name, { shouldDirty: true });
+    form.setValue("slug", tpl.slug, { shouldDirty: true });
+    form.setValue("overview", tpl.overview, { shouldDirty: true });
+    form.setValue("eligibility", tpl.eligibility, { shouldDirty: true });
+    form.setValue("scholarships", tpl.scholarships, { shouldDirty: true });
+    form.setValue("visaOverview", tpl.visaOverview, { shouldDirty: true });
+    form.setValue("careerOutcomes", tpl.careerOutcomes, { shouldDirty: true });
+
+    // Populate courses
+    setCourses(tpl.popularCourses);
+
+    // Populate structured costs
+    setCostBreakdown({
+      undergraduateTuition: tpl.costBreakdown.undergraduateTuition,
+      postgraduateTuition: tpl.costBreakdown.postgraduateTuition,
+      livingExpenses: tpl.costBreakdown.livingExpenses,
+      visaFees: tpl.costBreakdown.visaFees,
+      workRights: tpl.costBreakdown.workRights,
+      postStudyWork: tpl.costBreakdown.postStudyWork,
+    });
+
+    toast({
+      title: `✨ Template Applied for ${tpl.name}!`,
+      description: "All overviews, fees, courses, and admissions data pre-filled. You can edit any field or save directly.",
+    });
+  };
+
+  // Quick Add University inline
+  const handleQuickAddUniversity = async () => {
+    const name = quickUniName.trim();
+    if (!name) {
+      toast({ title: "Please enter a university name", variant: "destructive" });
+      return;
+    }
+
+    setIsQuickAddingUni(true);
+    try {
+      const countryName = form.getValues("name") || "International";
+      const res = await fetch("/api/admin/universities", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          countryName: countryName.trim(),
+          description: `${name} is an esteemed partner university located in ${countryName}, dedicated to excellence in education, student satisfaction, and global career opportunities.`,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Failed to create university");
+      }
+
+      const newUni = await res.json();
+      setUniList((prev) => [newUni, ...prev]);
+      setSelectedUniIds((prev) => [...prev, newUni.id]);
+      setQuickUniName("");
+      toast({ title: `"${newUni.name}" created and linked!` });
+    } catch (err: any) {
+      toast({ title: err.message || "Failed to add university", variant: "destructive" });
+    } finally {
+      setIsQuickAddingUni(false);
+    }
+  };
+
+  const handleAutoFillOverview = () => {
+    const rawName = form.getValues("name");
+    if (!rawName?.trim()) {
+      toast({ title: "Please enter a country name first!", variant: "destructive" });
+      return;
+    }
+    const tpl = getCountryTemplate(rawName);
+    form.setValue("overview", tpl.overview, { shouldDirty: true });
+    toast({ title: `Overview updated from ${tpl.name} template` });
+  };
+
+  const handleAutoFillCosts = () => {
+    const rawName = form.getValues("name");
+    if (!rawName?.trim()) {
+      toast({ title: "Please enter a country name first!", variant: "destructive" });
+      return;
+    }
+    const tpl = getCountryTemplate(rawName);
+    setCostBreakdown({
+      undergraduateTuition: tpl.costBreakdown.undergraduateTuition,
+      postgraduateTuition: tpl.costBreakdown.postgraduateTuition,
+      livingExpenses: tpl.costBreakdown.livingExpenses,
+      visaFees: tpl.costBreakdown.visaFees,
+      workRights: tpl.costBreakdown.workRights,
+      postStudyWork: tpl.costBreakdown.postStudyWork,
+    });
+    toast({ title: `Standard cost ranges applied for ${tpl.name}` });
+  };
+
+  const handleAutoFillAdmissions = () => {
+    const rawName = form.getValues("name");
+    if (!rawName?.trim()) {
+      toast({ title: "Please enter a country name first!", variant: "destructive" });
+      return;
+    }
+    const tpl = getCountryTemplate(rawName);
+    form.setValue("eligibility", tpl.eligibility, { shouldDirty: true });
+    form.setValue("scholarships", tpl.scholarships, { shouldDirty: true });
+    form.setValue("visaOverview", tpl.visaOverview, { shouldDirty: true });
+    form.setValue("careerOutcomes", tpl.careerOutcomes, { shouldDirty: true });
+    toast({ title: `Admissions, visa & career details updated for ${tpl.name}` });
+  };
 
   // Form Submission
   const onSubmit = async (data: CountryFormValues) => {
@@ -417,10 +548,57 @@ export function CountryForm({
 
           {/* Section 1: Basic Information */}
           <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6">
-            <h3 className="text-lg font-bold font-outfit text-slate-900 flex items-center border-b pb-4">
-              <Globe className="w-5 h-5 mr-2 text-indigo-600" />
-              1. Basic Information & Status
-            </h3>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+              <h3 className="text-lg font-bold font-outfit text-slate-900 flex items-center">
+                <Globe className="w-5 h-5 mr-2 text-indigo-600" />
+                1. Basic Information & Status
+              </h3>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleApplyTemplate()}
+                className="bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 border-indigo-200 font-semibold shadow-2xs text-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
+                Auto-Fill All Details (Template)
+              </Button>
+            </div>
+
+            {/* Quick Pick Destination Presets */}
+            <div className="bg-gradient-to-r from-indigo-50/60 via-slate-50 to-blue-50/60 p-4 rounded-xl border border-indigo-100/70 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-indigo-950 flex items-center">
+                  <Zap className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
+                  Quick Load Popular Destination (1-Click Fill):
+                </span>
+                <span className="text-2xs text-slate-500">Auto-fills overview, costs, courses & admission requirements</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {[
+                  "United Kingdom",
+                  "United States",
+                  "Canada",
+                  "Australia",
+                  "Germany",
+                  "Ireland",
+                  "France",
+                  "New Zealand",
+                  "Dubai",
+                  "Singapore",
+                ].map((dest) => (
+                  <button
+                    key={dest}
+                    type="button"
+                    onClick={() => handleApplyTemplate(dest)}
+                    className="text-xs px-2.5 py-1 rounded-lg bg-white hover:bg-indigo-600 hover:text-white text-slate-700 font-medium border border-slate-200 hover:border-indigo-600 shadow-2xs transition-all active:scale-95"
+                  >
+                    + {dest}
+                  </button>
+                ))}
+              </div>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <FormField
@@ -428,7 +606,17 @@ export function CountryForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-semibold text-slate-700">Country Name</FormLabel>
+                    <div className="flex items-center justify-between">
+                      <FormLabel className="font-semibold text-slate-700">Country Name</FormLabel>
+                      <button
+                        type="button"
+                        onClick={() => handleApplyTemplate()}
+                        className="text-2xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center"
+                        title="Auto-fill form using this country name"
+                      >
+                        <Sparkles className="w-3 h-3 mr-1" /> Auto-fill from Name
+                      </button>
+                    </div>
                     <FormControl>
                       <Input
                         placeholder="e.g. United Kingdom"
@@ -618,7 +806,16 @@ export function CountryForm({
               name="overview"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="font-semibold text-slate-700">Country Overview</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel className="font-semibold text-slate-700">Country Overview</FormLabel>
+                    <button
+                      type="button"
+                      onClick={handleAutoFillOverview}
+                      className="text-2xs text-indigo-600 hover:text-indigo-800 font-semibold flex items-center"
+                    >
+                      <Sparkles className="w-3 h-3 mr-1" /> Auto-fill from Template
+                    </button>
+                  </div>
                   <FormControl>
                     <Textarea
                       placeholder="Comprehensive overview highlighting education quality, lifestyle, student cities, and why students choose this destination..."
@@ -714,7 +911,7 @@ export function CountryForm({
 
           {/* Section 4: Cost Breakdown & Fee Structure Table */}
           <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6">
-            <div className="flex items-center justify-between border-b pb-4">
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
               <div>
                 <h3 className="text-lg font-bold font-outfit text-slate-900 flex items-center">
                   <DollarSign className="w-5 h-5 mr-2 text-indigo-600" />
@@ -724,6 +921,17 @@ export function CountryForm({
                   This data powers the Cost Table on the student-facing destination page.
                 </p>
               </div>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAutoFillCosts}
+                className="text-xs text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 border-indigo-200"
+              >
+                <Sparkles className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
+                Auto-Fill Standard Costs
+              </Button>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -877,10 +1085,23 @@ export function CountryForm({
 
           {/* Section 5: Admissions, Scholarships, Visa & Career */}
           <div className="bg-white rounded-2xl p-6 md:p-8 border border-slate-200 shadow-xs space-y-6">
-            <h3 className="text-lg font-bold font-outfit text-slate-900 flex items-center border-b pb-4">
-              <GraduationCap className="w-5 h-5 mr-2 text-indigo-600" />
-              5. Admissions, Scholarships, Visa & Career
-            </h3>
+            <div className="flex flex-wrap items-center justify-between gap-4 border-b pb-4">
+              <h3 className="text-lg font-bold font-outfit text-slate-900 flex items-center">
+                <GraduationCap className="w-5 h-5 mr-2 text-indigo-600" />
+                5. Admissions, Scholarships, Visa & Career
+              </h3>
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleAutoFillAdmissions}
+                className="text-xs text-indigo-700 bg-indigo-50/70 hover:bg-indigo-100 border-indigo-200"
+              >
+                <Sparkles className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
+                Auto-Fill Admissions & Visa Data
+              </Button>
+            </div>
 
             <FormField
               control={form.control}
@@ -987,7 +1208,7 @@ export function CountryForm({
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => setSelectedUniIds(universities.map((u) => u.id))}
+                  onClick={() => setSelectedUniIds(uniList.map((u) => u.id))}
                   className="text-xs"
                 >
                   Select All
@@ -1009,8 +1230,48 @@ export function CountryForm({
                   className="text-xs"
                 >
                   <Link href="/admin/universities/new" target="_blank">
-                    <Plus className="w-3.5 h-3.5 mr-1" /> Add New Uni
+                    <Plus className="w-3.5 h-3.5 mr-1" /> Open Uni Manager
                   </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Inline Quick-Add University to this Country */}
+            <div className="bg-gradient-to-r from-slate-50 to-indigo-50/40 border border-slate-200 p-3.5 rounded-xl flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+              <span className="text-xs font-semibold text-slate-800 whitespace-nowrap flex items-center">
+                <Plus className="w-3.5 h-3.5 mr-1.5 text-indigo-600" />
+                Quick-Add University for this Country:
+              </span>
+              <div className="flex-1 flex gap-2">
+                <Input
+                  placeholder="e.g. University of Manchester, King's College..."
+                  value={quickUniName}
+                  onChange={(e) => setQuickUniName(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      handleQuickAddUniversity();
+                    }
+                  }}
+                  className="text-xs bg-white"
+                  disabled={isQuickAddingUni}
+                />
+                <Button
+                  type="button"
+                  size="sm"
+                  onClick={handleQuickAddUniversity}
+                  disabled={isQuickAddingUni || !quickUniName.trim()}
+                  className="text-xs whitespace-nowrap bg-indigo-600 hover:bg-indigo-700"
+                >
+                  {isQuickAddingUni ? (
+                    <>
+                      <Loader2 className="w-3 h-3 mr-1 animate-spin" /> Adding...
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-3.5 h-3.5 mr-1" /> Add & Link
+                    </>
+                  )}
                 </Button>
               </div>
             </div>
