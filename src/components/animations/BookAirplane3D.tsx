@@ -197,9 +197,9 @@ function DetailedBook() {
   );
 }
 
-export function BookAirplane3D() {
+export function BookAirplane3D({ className }: { className?: string } = {}) {
   return (
-    <div className="absolute inset-0 z-0 opacity-80 pointer-events-auto">
+    <div className={className || "absolute inset-0 z-0 opacity-80 pointer-events-auto"}>
       <Canvas camera={{ position: [0, 4, 12], fov: 45 }}>
         <ambientLight intensity={0.6} />
         <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
