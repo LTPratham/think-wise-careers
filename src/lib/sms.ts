@@ -46,11 +46,22 @@ export async function sendSms({ phone, message, code }: SendSmsOptions): Promise
 
       const data = await response.json().catch(() => null);
 
-      if (response.ok && (data?.success === true || data?.status === "success" || data?.messageId || data?.id)) {
-        console.log(`[AiSensy WhatsApp] Successfully dispatched OTP to ${destination}`);
+      if (
+        response.ok &&
+        (data?.success === true ||
+          data?.success === "true" ||
+          data?.submitted_message_id ||
+          data?.status === "success" ||
+          data?.messageId ||
+          data?.id)
+      ) {
+        console.log(`[AiSensy WhatsApp] Successfully dispatched OTP to ${destination}`, data);
         return { success: true };
       } else {
         console.error(`[AiSensy WhatsApp Send Error]: Status ${response.status}`, data);
+        if (data?.message?.includes("Opted-out")) {
+          return { success: false, error: "This mobile number is marked as Opted-out in WhatsApp. Send 'START' to +91 73000 36507 on WhatsApp to re-enable." };
+        }
       }
     } catch (err: any) {
       console.error(`[AiSensy WhatsApp Request Exception]:`, err);
