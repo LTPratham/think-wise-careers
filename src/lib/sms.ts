@@ -27,13 +27,35 @@ export async function sendSms({ phone, message, code }: SendSmsOptions): Promise
       const apiKey = process.env.AISENSY_API_KEY;
       const campaignName = process.env.AISENSY_CAMPAIGN_NAME || "twc_otp";
       const destination = fullIntlNumber; // 91XXXXXXXXXX
+      const otpCode = code || (message.match(/\b\d{4,6}\b/) ? message.match(/\b\d{4,6}\b/)![0] : "123456");
 
       const payload: any = {
         apiKey,
         campaignName,
         destination,
         userName: "Think Wise Careers",
-        templateParams: code ? [code] : [message],
+        templateParams: [otpCode],
+        source: "thinkwisecareers.com",
+        media: {},
+        buttons: [
+          {
+            type: "button",
+            sub_type: "url",
+            index: 0,
+            parameters: [
+              {
+                type: "text",
+                text: otpCode,
+              },
+            ],
+          },
+        ],
+        carouselCards: [],
+        location: {},
+        attributes: {},
+        paramsFallbackValue: {
+          FirstName: "User",
+        },
       };
 
       const response = await fetch("https://backend.aisensy.com/campaign/t1/api/v2", {
@@ -55,7 +77,7 @@ export async function sendSms({ phone, message, code }: SendSmsOptions): Promise
           data?.messageId ||
           data?.id)
       ) {
-        console.log(`[AiSensy WhatsApp] Successfully dispatched OTP to ${destination}`, data);
+        console.log(`[AiSensy WhatsApp] Successfully dispatched OTP (${otpCode}) to ${destination}`, data);
         return { success: true };
       } else {
         console.error(`[AiSensy WhatsApp Send Error]: Status ${response.status}`, data);

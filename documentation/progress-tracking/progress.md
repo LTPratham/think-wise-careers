@@ -59,7 +59,8 @@
 ## Completed Items
 - **2026-11-27**: Live AiSensy Official Meta WhatsApp Business API Integration:
   - Connected and tested live AiSensy REST API (`https://backend.aisensy.com/campaign/t1/api/v2`) with API campaign `twc_otp`.
-  - Successfully verified live message dispatch from business number **+91 73000 36507** (Message ID: `c204fe38-249d-48f4-915c-3c6d7f3bb1ff`).
+  - Configured campaign button parameters matching Meta Authentication template (`buttons[0].parameters[0].text = otpCode`), resolving `Button at index 0 of type Url requires a parameter` dispatch error.
+  - Successfully verified live OTP message dispatch from business number **+91 73000 36507** to user WhatsApp.
   - Stored credentials in local `.env` and `.env.local` for instant dual-channel phone verification.
 - **2026-11-24**: Custom 404 Interactive Error Page Redesign (`src/app/not-found.tsx`):
   - Upgraded to a 2-column responsive layout where the 3D aeroplane and globe stage is fully visible on the right, completely unobstructed.
